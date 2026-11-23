@@ -1,7 +1,7 @@
 // Service worker: deixa o app funcionar offline.
 // Estratégia "rede primeiro": com internet, sempre busca a versão mais nova dos
 // arquivos (e guarda uma cópia); sem internet, usa a cópia guardada.
-const CACHE = "diario-v10";   // v10: novo visual (tema entomológico)
+const CACHE = "diario-v11";   // v11: versão 2.1 (desfazer, notas, relatório, organizar, tema...)
 const ARQUIVOS = [
   "./", "index.html", "style.css", "app.js",
   "manifest.webmanifest", "icon-192.png", "icon-512.png"
