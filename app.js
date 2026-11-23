@@ -62,7 +62,7 @@ const vals=()=>{const o={};document.querySelectorAll("#modal [name]").forEach(e=
 const gForm=f=>[{k:"n",l:"Nome do gênero"}].concat(f.grp.length?[{k:"gr",l:"Agrupamento (opcional)",t:"sel",o:["(nenhum)"].concat(f.grp.map(grl))}]:[],[{k:"st",l:"Situação",t:"sel",o:GST},{k:"p",l:"Prioridade",t:"sel",o:PRIO},{k:"sp",l:"Nº de espécies (aprox.)"},{k:"nt",l:"Notas",t:"area"}]);
 const tForm=c=>[{k:"t",l:"Atividade"},{k:"c",l:"Categoria",t:"sel",o:catsFor().includes(c)?catsFor():[c,...catsFor()]},{k:"s",l:"Situação",t:"sel",o:STAT},{k:"d",l:"Prazo",t:"date"},{k:"nt",l:"Notas",t:"area"}];
 
-function vGroups(){return`<div class="tools"><input id="q" type="search" placeholder="Buscar família, gênero, espécie ou atividade" value="${esc(V.q)}"></div><div id="list"></div>`}
+function vGroups(){return`<div class="tools"><input id="q" type="search" placeholder="Buscar família, gênero ou espécie" value="${esc(V.q)}"></div><div id="list"></div>`}
 function taskH(t){
  const k=STAT.indexOf(t.s),over=t.d&&t.d<today()&&k<2,sd=t.b.filter(x=>x.x).length;
  return`<div class="task s${k}"><div class="r"><button class="st" data-a="cy" data-i="${t.id}" title="Alternar situação">${["○","◐","●"][k]}</button><div class="g1"><b>${esc(t.t)}</b><div><span class="chip">${esc(t.c)}</span>${t.d?`<span class="chip ${over?"red":"blue"}">📅 ${fmt(t.d)}</span>`:""}${t.b.length?`<span class="chip">${sd}/${t.b.length}</span>`:""}</div></div><button class="ic" data-a="et" data-i="${t.id}">✎</button></div>${t.nt?`<div class="note" style="margin:4px 0 0 46px">${esc(t.nt)}</div>`:""}<ul>${t.b.map(x=>`<li><label><input type="checkbox" data-a="sb" data-i="${t.id}|${x.id}"${x.x?" checked":""}><span class="${x.x?"dn":""}">${esc(x.t)}</span></label><button class="ic" data-a="ds" data-i="${t.id}|${x.id}">✕</button></li>`).join("")}</ul><input class="addsub" data-sub="${t.id}" placeholder="+ subatividade (Enter)"></div>`;
@@ -155,6 +155,7 @@ function list(){
  }
  $("#list").innerHTML=h||'<div class="empty">Nenhuma família ainda. Toque no + para criar.</div>';
 }
+const closeMenu=()=>{$("#menu").hidden=true;$("#scrim").hidden=true};
 // ----- abas, deslize e animação -----
 const TABS=["g","p","m","b"];
 let dir=0;
@@ -167,8 +168,8 @@ function render(){
  a.innerHTML=V.tab==="g"?(V.s?vSp():V.g?vGen():vGroups()):V.tab==="p"?vDash():V.tab==="m"?vTpl():vBackup();
  if(V.tab==="g"&&!V.g)list();
  const sub=V.tab==="g"&&V.g;                       // dentro de um gênero ou espécie?
- $("#bk").hidden=!sub;
- $("#ttl").textContent=!sub?"Diário de Pesquisa":V.s?gen(V.f,V.g).n:fam(V.f).n;
+ $("#bk").hidden=!(sub||V.tab==="m"||V.tab==="b");
+ $("#ttl").textContent=V.tab==="m"?"Modelos":V.tab==="b"?"Backup":!sub?"Diário de Pesquisa":V.s?gen(V.f,V.g).n:fam(V.f).n;
  const fa=V.tab==="g"&&!V.s?(V.g?"addSp":"addFam"):"";   // ação do botão flutuante +
  $("#fab").hidden=!fa;$("#fab").dataset.a=fa;
  a.classList.remove("in-l","in-r");
@@ -178,11 +179,12 @@ function render(){
 // ===== 7. AÇÕES (o que cada botão faz) =====
 const done=()=>{fix();save();closeM();render()}; // fix() garante que itens novos tenham todos os campos
 const A={
- tab(el){go(el.dataset.i)},
+ tab(el){closeMenu();go(el.dataset.i)},
  tf(el){const f=fam(el.dataset.i);f.o=f.o?0:1;save();render()},
  og(el){const[f,g,s]=el.dataset.i.split("|");V.tab="g";V.f=f;V.g=g;V.s=s||null;dir=1;render();$("#app").scrollTop=0},
  back(){V.g=null;V.s=null;render()},
- navback(){if(V.s)V.s=null;else V.g=null;dir=-1;render()},
+ navback(){if(V.tab!=="g"){go("g");return}if(V.s)V.s=null;else V.g=null;dir=-1;render()},
+ menu(){const o=$("#menu").hidden;$("#menu").hidden=!o;$("#scrim").hidden=!o},
  addGrp(el){const f=fam(el.dataset.i);form("Novo agrupamento (subfamília, tribo...)",grForm,{r:RANKS[0]},v=>{if(!v.n)return;f.grp.push({id:uid(),n:v.n,r:v.r,nt:v.nt});f.o=1;done()})},
  editGrp(el){const[fi,gi]=el.dataset.i.split("|"),f=fam(fi),x=grById(f,gi);form("Editar agrupamento",grForm,{n:x.n,r:x.r,nt:x.nt},v=>{if(!v.n)return;Object.assign(x,{n:v.n,r:v.r,nt:v.nt});done()},()=>{if(!ask(grl(x)+" (os gêneros dele NÃO serão apagados, só ficarão sem agrupamento)"))return;f.g.forEach(g=>{if(g.gr===x.id)g.gr=""});f.grp=f.grp.filter(y=>y!==x);done()})},
  backg(){V.s=null;render()},
@@ -219,15 +221,31 @@ const A={
 document.addEventListener("click",e=>{const el=e.target.closest("[data-a]");if(el&&A[el.dataset.a]){if(el.type!=="checkbox")e.preventDefault&&0;A[el.dataset.a](el)}});
 document.addEventListener("input",e=>{if(e.target.id==="q"){V.q=e.target.value;list()}});
 document.addEventListener("keydown",e=>{const el=e.target;if(e.key==="Enter"&&el.dataset&&el.dataset.sub&&el.value.trim()){const t=own().tasks.find(x=>x.id===el.dataset.sub);t.b.push({id:uid(),t:el.value.trim(),x:0});save();render();const n=document.querySelector(`[data-sub="${t.id}"]`);if(n)n.focus()}});
-// deslizar: troca de aba (esquerda/direita) ou volta (direita, dentro de gênero/espécie)
-let tx=0,ty=0,tt=0;
-$("#app").addEventListener("touchstart",e=>{const t=e.touches[0];tx=t.clientX;ty=t.clientY;tt=Date.now()},{passive:true});
-$("#app").addEventListener("touchend",e=>{
- const t=e.changedTouches[0],dx=t.clientX-tx,dy=t.clientY-ty;
- if(Math.abs(dx)<70||Math.abs(dx)<Math.abs(dy)*1.6||Date.now()-tt>600)return;
- if(V.tab==="g"&&V.g){if(dx>0)A.navback();return}
- const t2=TABS[TABS.indexOf(V.tab)+(dx<0?1:-1)];if(t2)go(t2);
+// deslizar com o dedo: a tela acompanha o gesto e troca com animação suave
+const pane=$("#app");
+let tx=0,ty=0,tt=0,mode=0;   // mode: 0 = indefinido, 1 = horizontal, -1 = vertical/ignorar
+const swTarget=dx=>V.tab!=="g"?(dx>0?"g":null):V.g?(dx>0?"back":null):(dx<0?"p":null); // para onde o gesto leva
+pane.addEventListener("touchstart",e=>{const t=e.touches[0];tx=t.clientX;ty=t.clientY;tt=Date.now();mode=e.target.closest("input,textarea,select")?-1:0;pane.style.transition="none"},{passive:true});
+pane.addEventListener("touchmove",e=>{
+ const t=e.touches[0],dx=t.clientX-tx,dy=t.clientY-ty;
+ if(!mode&&(Math.abs(dx)>10||Math.abs(dy)>10))mode=Math.abs(dx)>Math.abs(dy)*1.5?1:-1;
+ if(mode!==1)return;
+ pane.style.transform=`translateX(${dx*(swTarget(dx)?0.55:0.12)}px)`;   // sem destino: só uma leve resistência
+ pane.style.opacity=1-Math.min(Math.abs(dx)/500,0.4);
 },{passive:true});
+function release(e){
+ if(mode!==1)return;
+ const dx=(e.changedTouches?e.changedTouches[0].clientX:tx)-tx,alvo=swTarget(dx),rapido=Math.abs(dx)/(Date.now()-tt+1)>0.5;
+ if(alvo&&(Math.abs(dx)>90||(rapido&&Math.abs(dx)>40))){
+  pane.style.transition="transform .16s ease-in,opacity .16s ease-in";   // sai deslizando...
+  pane.style.transform=`translateX(${dx<0?-70:70}px)`;pane.style.opacity=0;
+  setTimeout(()=>{pane.style.transition="none";pane.style.transform="";pane.style.opacity="";   // ...e a nova tela entra
+   if(alvo==="back")A.navback();else go(alvo)},160);
+ }else{pane.style.transition="transform .28s cubic-bezier(.2,.8,.2,1),opacity .28s";pane.style.transform="";pane.style.opacity=""}   // volta suavemente
+ mode=0;
+}
+pane.addEventListener("touchend",release,{passive:true});
+pane.addEventListener("touchcancel",release,{passive:true});
 document.addEventListener("keydown",e=>{ // Enter nos campos de habitus e de modelos
  const el=e.target,v=el.value&&el.value.trim();if(e.key!=="Enter"||!v)return;
  if(el.dataset.hab)own().hab.push({n:v,x:0});else if(el.dataset.tadd)S.tpl[el.dataset.tadd].push(v);else return;

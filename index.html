@@ -11,10 +11,19 @@
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
-<div class="wrap">
-<header><h1>🪲 Diário de Pesquisa</h1><span id="sync">dados salvos neste aparelho</span></header>
-<nav id="tabs"><button data-a="tab" data-i="g">Grupos</button><button data-a="tab" data-i="p">Painel</button><button data-a="tab" data-i="m">Modelos</button><button data-a="tab" data-i="b">Backup</button></nav>
-<main id="app"></main>
+<div id="shell">
+  <header id="bar"><button id="bk" data-a="navback" hidden aria-label="Voltar">‹</button><h1 id="ttl">Diário de Pesquisa</h1><button id="mn" data-a="menu" aria-label="Mais opções">⋮</button></header>
+  <main id="app"></main>
+  <nav id="tabs">
+    <button data-a="tab" data-i="g"><span>🪲</span>Grupos</button>
+    <button data-a="tab" data-i="p"><span>📊</span>Painel</button>
+  </nav>
+</div>
+<button id="fab" data-a="" hidden aria-label="Adicionar">+</button>
+<div id="scrim" data-a="menu" hidden></div>
+<div id="menu" hidden>
+  <button data-a="tab" data-i="m">🧩&nbsp; Modelos de atividades</button>
+  <button data-a="tab" data-i="b">💾&nbsp; Backup e restauração</button>
 </div>
 <div id="modal"></div><div id="toast"></div>
 <script src="app.js"></script>
