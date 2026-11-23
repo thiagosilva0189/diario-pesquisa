@@ -1,8 +1,8 @@
 // Service worker: guarda os arquivos do app no aparelho para funcionar offline.
 // IMPORTANTE: sempre que você alterar qualquer arquivo do app, troque o número
-// da versão abaixo (diario-v2 -> diario-v2 ...). Sem isso o celular continua
+// da versão abaixo (diario-v3 -> diario-v3 ...). Sem isso o celular continua
 // mostrando a versão antiga guardada.
-const CACHE = "diario-v2";
+const CACHE = "diario-v3";
 const ARQUIVOS = [
   "./", "index.html", "style.css", "app.js",
   "manifest.webmanifest", "icon-192.png", "icon-512.png"
