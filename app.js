@@ -1,6 +1,6 @@
 
 // ===== 1. CONSTANTES (listas fixas: situações, categorias, modelo de tarefas) =====
-// Trechos marcados com [v2.1] são novos nesta versão.
+// Trechos marcados com [v2.1] e [v2.2] são novidades dessas versões.
 const KEY="diario-pesquisa-v1";
 const THK="diario-tema";   // [v2.1] tema escolhido no menu (guardado à parte, fora do backup)
 const STAT=["A fazer","Em execução","Concluída"];
@@ -76,6 +76,7 @@ V.cal={y:+today().slice(0,4),m:+today().slice(5,7)-1,d:today()};
 V.pt="x";
 V.rp={k:"7",a:addD(today(),-6),b:today()};   // [v2.1] período do relatório
 V.oF=null;V.oG=null;V.ret=null;               // [v2.1] tela Organizar: família/gênero abertos e tela de retorno
+V.kf={from:today(),col:"blue",rm:1};V.kres=null; // [v2.2] opções e resultado da importação do Google Agenda
 const fam=id=>S.f.find(f=>f.id===id),gen=(f,g)=>{const F=fam(f);return F&&F.g.find(x=>x.id===g)};
 const spc=(f,g,s)=>{const G=gen(f,g);return G&&G.spp.find(x=>x.id===s)};
 const gById=id=>{for(const f of S.f){const g=f.g.find(x=>x.id===id);if(g)return g}};
@@ -87,7 +88,7 @@ function persist(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){toas
 function save(){S.t=Date.now();persist();if(UNDO){UNDO=null;$("#toast").style.display="none"}}   // outra mudança cancela o "Desfazer"
 function toast(m,u){const t=$("#toast");t.innerHTML=`<span>${esc(m)}</span>`+(u?'<button data-a="undo">Desfazer</button>':"");t.style.display="flex";clearTimeout(TT);TT=setTimeout(()=>{t.style.display="none";if(u)UNDO=null},u?6000:2200)}
 // [v2.1] excluir com "Desfazer": guarda uma cópia de tudo, exclui e mostra o aviso por 6 segundos
-function rm(msg,fn){const snap=JSON.stringify(S);fn();fix();S.t=Date.now();persist();closeM();render();UNDO=snap;toast(msg,1)}
+function rm(msg,fn){const snap=JSON.stringify(S);fn();fix();S.t=Date.now();persist();closeM();render();UNDO=snap;toast(typeof msg==="function"?msg():msg,1)}
 // [v2.1] pergunta de confirmação dentro do app (no lugar da janelinha do navegador)
 function conf(msg,lab,fn){$("#modal").innerHTML=`<div class="sheet"><h3>Tem certeza?</h3><p>${esc(msg)}</p><div class="r"><button class="dng" data-a="ok">${esc(lab)}</button><button class="sec" data-a="cancel">Cancelar</button></div></div>`;$("#modal").classList.add("on");cb={ok:fn};syncHist()}
 // [v2.1] copiar texto (relatório) para a área de transferência
@@ -167,10 +168,10 @@ function prodH(){
  const T=allT(),td=T.filter(x=>x.t.s===STAT[2]).length,tile=(v,t,l)=>`<div><b>${v}<small>/${t}</small></b><span>${l}</span></div>`;
  return`<div class="grp">Produção</div><div class="stats">${STEPS.map((x,i)=>tile(c[x[0]],n,PL[i])).join("")}</div><div class="stats s3">${tile(hb,hn,"Habitus fotografados")}${tile(sok,sp,"Espécies com preparação completa")}${tile(td,T.length,"Atividades concluídas")}</div>`;
 }
-const VERSAO="2.1";   // mude aqui quando atualizar o app
+const VERSAO="2.2";   // mude aqui quando atualizar o app
 function vAbout(){
  let nG=0,nS=0;S.f.forEach(f=>{nG+=f.g.length;f.g.forEach(g=>nS+=g.spp.length)});
- return`<h2>Diário de Pesquisa</h2><p class="note">Sistemática e taxonomia · versão ${VERSAO}</p><p>Aplicativo pessoal para organizar o doutorado: famílias, gêneros e espécies, atividades e subatividades, prazos, escala de trabalho, agenda e diário de notas.</p><div class="grp">Seus dados</div><p>${S.f.length} famílias · ${nG} gêneros · ${nS} espécies.<br>Ficam salvos apenas neste aparelho. Faça backups com frequência (menu ⋮ › Backup e restauração).</p><div class="grp">Abas</div><p><b>Grupos</b>: famílias, gêneros, espécies, atividades e notas.<br><b>Painel</b>: hoje, produção, em execução, prazos e gêneros potenciais.<br><b>Agenda</b>: calendário com prazos, escala e feriados.<br><b>Contagem</b>: contagens regressivas.</p><div class="grp">Menu ⋮</div><p><b>Relatório</b>: o que foi concluído num período (para copiar ou compartilhar).<br><b>Organizar</b>: arrastar famílias, gêneros e espécies ou pôr em ordem alfabética.<br><b>Modelos</b>: atividades e peças de 1 clique.<br><b>Tema</b>: automático, claro ou escuro.</p><div class="grp">Uso offline</div><p>Depois da primeira abertura funciona sem internet e pode ser instalado na tela inicial. Com internet, atualiza sozinho para a versão mais nova.</p>`;
+ return`<h2>Diário de Pesquisa</h2><p class="note">Sistemática e taxonomia · versão ${VERSAO}</p><p>Aplicativo pessoal para organizar o doutorado: famílias, gêneros e espécies, atividades e subatividades, prazos, escala de trabalho, agenda e diário de notas.</p><div class="grp">Seus dados</div><p>${S.f.length} famílias · ${nG} gêneros · ${nS} espécies.<br>Ficam salvos apenas neste aparelho. Faça backups com frequência (menu ⋮ › Backup e restauração).</p><div class="grp">Abas</div><p><b>Grupos</b>: famílias, gêneros, espécies, atividades e notas.<br><b>Painel</b>: hoje, produção, em execução, prazos e gêneros potenciais.<br><b>Agenda</b>: calendário com prazos, escala e feriados.<br><b>Contagem</b>: contagens regressivas.</p><div class="grp">Menu ⋮</div><p><b>Relatório</b>: o que foi concluído num período (para copiar ou compartilhar).<br><b>Organizar</b>: arrastar famílias, gêneros e espécies ou pôr em ordem alfabética.<br><b>Google Agenda</b>: trazer eventos (arquivo exportado do Google) e enviar prazos.<br><b>Modelos</b>: atividades e peças de 1 clique.<br><b>Tema</b>: automático, claro ou escuro.</p><div class="grp">Uso offline</div><p>Depois da primeira abertura funciona sem internet e pode ser instalado na tela inicial. Com internet, atualiza sozinho para a versão mais nova.</p>`;
 }
 function vBackup(){return`<p class="note">Seus dados ficam salvos só neste aparelho, dentro do navegador. Copie o backup abaixo de vez em quando e guarde em lugar seguro (e-mail, Drive...).</p><textarea id="bkp" readonly style="min-height:160px">${esc(JSON.stringify(S,null,1))}</textarea><div class="tools" style="margin-top:8px"><button class="sec" data-a="copy">Copiar backup</button></div><div class="grp">Restaurar</div><textarea id="imp" placeholder="Cole aqui um backup (substitui tudo)"></textarea><div class="tools" style="margin-top:8px"><button class="dng" data-a="imp">Restaurar backup</button></div>`}
 
@@ -262,7 +263,7 @@ function agItems(){ // tudo que tem data: atividades do app, prazos de preparaç
  allT().forEach(x=>{if(x.t.d){const dn=x.t.s===STAT[2];L.push({d:x.t.d,t:x.t.t,col:dn?"gray":(x.t.p?pc(x.t.p):"blue"),k:"t",sub:where(x),dn,x})}});
  S.f.forEach(f=>f.g.forEach(g=>g.spp.forEach(s=>{if(s.d){const dn=!prepPend(s);L.push({d:s.d,t:"Dissecção e preparação — "+abbr(g,s.n),col:dn?"gray":"orange",k:"p",sub:esc(g.n)+" · "+esc(f.n),dn,x:{f,g,s}})}})));
  S.cd.forEach(c=>L.push({d:c.d,h:c.h,t:"⏳ "+c.n,col:"purple",k:"c",sub:"Contagem regressiva",x:c}));
- S.ag.forEach(e=>{const dn=e.s===STAT[2];L.push({d:e.d,h:e.h,t:e.t,col:dn?"gray":e.col,k:"a",sub:"Agenda"+(e.p?" · prioridade "+e.p.toLowerCase():"")+(e.pn?" · no Painel":""),dn,x:e})});
+ S.ag.forEach(e=>{const dn=e.s===STAT[2];L.push({d:e.d,h:e.h,t:e.t,col:dn?"gray":e.col,k:"a",sub:(e.gk?"Google Agenda"+(e.gc?" · "+esc(e.gc):""):"Agenda")+(e.p?" · prioridade "+e.p.toLowerCase():"")+(e.pn?" · no Painel":""),dn,x:e})});
  return L;
 }
 // abre o item tocado na Agenda ou no cartão "Hoje"
@@ -300,8 +301,8 @@ function vAg(){
  const hd=feriados(+c.d.slice(0,4))[c.d],le=escL(c.d);
  return`<div class="r" style="justify-content:space-between;margin-bottom:8px"><button class="sec" data-a="agm" data-i="-1">‹</button><b style="text-transform:capitalize">${new Date(c.y,c.m,1).toLocaleDateString("pt-BR",{month:"long",year:"numeric"})}</b><button class="sec" data-a="agm" data-i="1">›</button></div><div class="cg">${["D","S","T","Q","Q","S","S"].map(x=>`<small>${x}</small>`).join("")}${g}</div>`
  +`<div class="r" style="justify-content:space-between"><div class="grp">${fmt(c.d)}${c.d===td?" · hoje":""}</div><button class="lnk" data-a="agt">Ir para hoje</button></div><div>${hd?`<span class="chip orange">🎉 ${esc(hn(hd))}</span>`:""}${le?`<span class="chip ${ESC[le]||"gray"}">Escala: ${esc(ESN[le]||le)}</span>`:""}</div>`
- +(day.map((i,n)=>`<div class="card gen" style="border-top:0" data-a="agi" data-i="${n}"><div class="r"><i class="dot ${i.col}"></i><b class="g1${i.dn?" dn":""}">${esc(i.t)}</b><small>${i.h?esc(i.h):""}</small></div><small>${i.sub}</small></div>`).join("")||'<div class="empty">Nada neste dia. Toque no + para criar uma atividade.</div>')
- +'<div class="tools" style="margin-top:12px"><button class="sec" data-a="escf">⚙ Escala de trabalho</button></div><details class="lg"><summary>Legenda</summary><p class="note">Escala no canto de cada dia (M manhã · N noite · F folga). Domingos em azul; feriados com o número em vermelho. Cores dos prazos: vermelho = prioridade alta, amarelo = média, verde = baixa, azul = sem prioridade, cinza = concluída; laranja = dissecção/preparação; roxo = contagem regressiva. Atividades criadas na agenda usam a cor escolhida.</p></details>';
+ +(day.map((i,n)=>`<div class="card gen" style="border-top:0" data-a="agi" data-i="${n}"><div class="r"><i class="dot ${i.col}"></i><b class="g1${i.dn?" dn":""}">${esc(i.t)}</b><small>${i.h?esc(i.h):""}</small>${i.dn||i.x.gk?"":`<button class="gbtn" data-a="gcal" data-i="${n}" title="Adicionar ao Google Agenda">+ Google</button>`}</div><small>${i.sub}</small></div>`).join("")||'<div class="empty">Nada neste dia. Toque no + para criar uma atividade.</div>')
+ +'<div class="tools" style="margin-top:12px;flex-wrap:wrap"><button class="sec" data-a="escf">⚙ Escala de trabalho</button><button class="sec" data-a="tab" data-i="k">Google Agenda</button></div><details class="lg"><summary>Legenda</summary><p class="note">Escala no canto de cada dia (M manhã · N noite · F folga). Domingos em azul; feriados com o número em vermelho. Cores dos prazos: vermelho = prioridade alta, amarelo = média, verde = baixa, azul = sem prioridade, cinza = concluída; laranja = dissecção/preparação; roxo = contagem regressiva. Atividades criadas na agenda usam a cor escolhida. O botão + Google abre o Google Agenda com o item já preenchido; eventos trazidos do Google aparecem como “Google Agenda”.</p></details>';
 }
 
 function vTpl(){
@@ -410,21 +411,152 @@ function vRep(){
 }
 function repText(){const r=V.rp,{G}=repData(r.a,r.b);return"Relatório de atividades — "+fmt(r.a)+" a "+fmt(r.b)+"\n"+G.map(g=>"\n"+g.lt+"\n"+g.it.map(i=>"  • "+fmt(i.d).slice(0,5)+" — "+i.tt).join("\n")).join("\n")}
 
+
+// ----- [v2.2] GOOGLE AGENDA: trazer eventos (arquivo .ics ou .zip exportado do Google) e enviar itens -----
+const MARCA="[Diário de Pesquisa]";   // marca nos eventos enviados pelo app (assim eles não voltam duplicados)
+const plain=h=>{const d=document.createElement("div");d.innerHTML=String(h||"").replace(/<br\s*\/?>/gi,"\n");return d.textContent};
+const icsUnesc=s=>s.replace(/\\n/gi,"\n").replace(/\\([,;\\])/g,"$1");
+// lê o texto do .ics e devolve o nome da agenda e a lista de eventos (cada campo = {v: valor, p: parâmetros})
+function icsParse(txt){
+ const L=txt.replace(/\r\n?/g,"\n").replace(/\n[ \t]/g,"").split("\n"),evs=[];let ev=null,sub=0,cal="";
+ for(const ln of L){
+  if(ln==="BEGIN:VEVENT"){ev={};sub=0;continue}
+  if(ln==="END:VEVENT"){if(ev)evs.push(ev);ev=null;continue}
+  if(ev&&/^BEGIN:/.test(ln)){sub++;continue}          // ignora blocos internos (ex.: lembretes VALARM)
+  if(ev&&/^END:/.test(ln)){sub--;continue}
+  const m=ln.match(/^([A-Za-z0-9-]+)((?:;[^:;=]+=(?:"[^"]*"|[^:;]*))*):(.*)$/);if(!m)continue;
+  const nm=m[1].toUpperCase(),pr={};m[2].split(";").slice(1).forEach(x=>{const k=x.indexOf("=");pr[x.slice(0,k).toUpperCase()]=x.slice(k+1).replace(/^"|"$/g,"")});
+  if(!ev){if(nm==="X-WR-CALNAME")cal=icsUnesc(m[3]);continue}
+  if(sub>0)continue;
+  if(nm==="EXDATE"){(ev.EXDATE=ev.EXDATE||[]).push(...m[3].split(",").map(v=>({v,p:pr})));continue}
+  if(!(nm in ev))ev[nm]={v:m[3],p:pr};
+ }
+ return{cal,evs};
+}
+// hora "de parede" num fuso (TZID) convertida para um Date
+function tzDate(Y,Mo,D,H,Mi,Se,tz){const g=Date.UTC(Y,Mo-1,D,H,Mi,Se);try{const p={};new Intl.DateTimeFormat("en-US",{timeZone:tz,hourCycle:"h23",year:"numeric",month:"2-digit",day:"2-digit",hour:"2-digit",minute:"2-digit",second:"2-digit"}).formatToParts(new Date(g)).forEach(x=>p[x.type]=x.value);return new Date(g-(Date.UTC(+p.year,+p.month-1,+p.day,+p.hour,+p.minute,+p.second)-g))}catch(e){return new Date(Y,Mo-1,D,H,Mi,Se)}}
+// data e hora de um campo (DTSTART etc.) no fuso deste celular: {d:"AAAA-MM-DD", h:"HH:MM" ou "", all: dia inteiro?}
+function icsWhen(o){
+ const m=o&&o.v.trim().match(/^(\d{4})(\d{2})(\d{2})(?:T(\d{2})(\d{2})(\d{2})?(Z)?)?$/);if(!m)return null;
+ const[,Y,Mo,D,H,Mi,Se,Z]=m;if(!H||o.p.VALUE==="DATE")return{d:Y+"-"+Mo+"-"+D,h:"",all:1};
+ const dt=Z?new Date(Date.UTC(+Y,+Mo-1,+D,+H,+Mi,+(Se||0))):o.p.TZID?tzDate(+Y,+Mo,+D,+H,+Mi,+(Se||0),o.p.TZID):new Date(+Y,+Mo-1,+D,+H,+Mi,+(Se||0));
+ return{d:dt.getFullYear()+"-"+p2(dt.getMonth()+1)+"-"+p2(dt.getDate()),h:p2(dt.getHours())+":"+p2(dt.getMinutes()),all:0};
+}
+// eventos que se repetem (RRULE): gera as ocorrências até a data lim ("AAAAMMDD")
+function rrExpand(st,rr,lim,exd){
+ const m=st.v.match(/^(\d{4})(\d{2})(\d{2})(T\d{4,6}Z?)?$/);if(!m)return[st];
+ const R={};rr.split(";").forEach(x=>{const[k,v]=x.split("=");R[k.toUpperCase()]=v||""});
+ const fr=R.FREQ,iv=Math.max(1,+R.INTERVAL||1),cnt=R.COUNT?+R.COUNT:1e9,un=R.UNTIL?R.UNTIL.slice(0,8):"99999999",DW=["SU","MO","TU","WE","TH","FR","SA"],tail=m[4]||"";
+ const s0=Date.UTC(+m[1],+m[2]-1,+m[3]),d0=new Date(s0),ymd=t=>{const d=new Date(t);return""+d.getUTCFullYear()+p2(d.getUTCMonth()+1)+p2(d.getUTCDate())},k0=ymd(s0);
+ const ex=new Set((exd||[]).map(e=>e.v.slice(0,8))),bd=(R.BYDAY||"").split(",").filter(Boolean),out=[];let n=0;
+ const push=t=>{const k=ymd(t);if(k<k0)return true;if(k>un||n>=cnt||k>lim)return false;n++;if(!ex.has(k))out.push({v:k+tail,p:st.p});return true};
+ const nDias=(Y,M)=>new Date(Date.UTC(Y,M+1,0)).getUTCDate();
+ for(let i=0;i<20000;i++){
+  if(fr==="DAILY"){if(!push(s0+i*iv*864e5))break}
+  else if(fr==="WEEKLY"){const w0=s0-d0.getUTCDay()*864e5+i*iv*7*864e5,ds=bd.length?bd.map(x=>DW.indexOf(x.slice(-2))).sort():[d0.getUTCDay()];if(!ds.every(k=>push(w0+k*864e5)))break}
+  else if(fr==="MONTHLY"||fr==="YEARLY"){
+   const yr=d0.getUTCFullYear()+(fr==="YEARLY"?i*iv:0),ms=fr==="YEARLY"?(R.BYMONTH?R.BYMONTH.split(",").map(x=>+x-1):[d0.getUTCMonth()]):[d0.getUTCMonth()+i*iv];let ok=true;
+   for(const mm of ms){const Y=yr+Math.floor(mm/12),M=((mm%12)+12)%12,nd=nDias(Y,M);let ds;
+    if(R.BYMONTHDAY)ds=R.BYMONTHDAY.split(",").map(x=>+x>0?+x:nd+(+x)+1);
+    else if(bd.length)ds=bd.flatMap(x=>{const o=parseInt(x)||0,wd=DW.indexOf(x.slice(-2)),all=[];for(let d=1;d<=nd;d++)if(new Date(Date.UTC(Y,M,d)).getUTCDay()===wd)all.push(d);return o>0?[all[o-1]]:o<0?[all[all.length+o]]:all});
+    else ds=[d0.getUTCDate()];
+    if(!ds.filter(d=>d&&d<=nd).sort((a,b)=>a-b).every(d=>push(Date.UTC(Y,M,d)))){ok=false;break}}
+   if(!ok)break}
+  else{out.push(st);break}
+ }
+ return out;
+}
+// junta os eventos dos arquivos na Agenda do app, sem duplicar (cada evento do Google tem um código UID)
+function icsImport(files,o){
+ const lim=addD(o.from,366).replace(/-/g,""),r={n:0,u:0,x:0,cals:[]};
+ files.forEach(f=>{
+  const{cal,evs}=icsParse(f.text),cn=cal||f.name.replace(/\.(ics|txt)$/i,""),M=new Map(),seen=new Set(),canc=e=>e.STATUS&&/CANCELLED/i.test(e.STATUS.v);r.cals.push(cn);
+  evs.forEach(e=>{if(e["RECURRENCE-ID"]||!e.DTSTART||!e.UID)return;const u=e.UID.v;
+   if(/^diario-/.test(u)||(e.DESCRIPTION&&icsUnesc(e.DESCRIPTION.v).includes(MARCA)))return;   // enviado pelo próprio app
+   (e.RRULE?rrExpand(e.DTSTART,e.RRULE.v,lim,e.EXDATE):[e.DTSTART]).forEach(x=>{const w=icsWhen(x);if(w)M.set(e.RRULE?u+"|"+w.d:u,{e,w})})});
+  evs.forEach(e=>{if(!e["RECURRENCE-ID"]||!e.UID)return;const z=icsWhen(e["RECURRENCE-ID"]),k=e.UID.v+"|"+(z&&z.d),w=e.DTSTART&&icsWhen(e.DTSTART);   // ocorrência alterada ou cancelada
+   if(canc(e)||!w)M.delete(k);else M.set(k,{e,w})});
+  M.forEach(({e,w},k)=>{if(canc(e)||w.d<o.from)return;seen.add(k);
+   const t=e.SUMMARY?icsUnesc(e.SUMMARY.v):"(sem título)",loc=e.LOCATION?icsUnesc(e.LOCATION.v):"",ds=e.DESCRIPTION?plain(icsUnesc(e.DESCRIPTION.v)).trim():"";
+   let fim="";if(w.all&&e.DTEND){const z=icsWhen(e.DTEND);if(z&&z.d>addD(w.d,1))fim="Até "+fmt(addD(z.d,-1))}
+   const nt=[fim,loc&&"Local: "+loc,ds].filter(Boolean).join("\n"),a=S.ag.find(x=>x.gk===k&&x.gc===cn);
+   if(a){Object.assign(a,{t,d:w.d,h:w.h,nt});r.u++}   // já existia: atualiza (mantém situação, prioridade, cor e Painel)
+   else{S.ag.push({id:uid(),t,d:w.d,h:w.h,s:STAT[0],p:"",col:o.col,pn:0,nt,gk:k,gc:cn});r.n++}});
+  if(o.rm){const n0=S.ag.length;S.ag=S.ag.filter(x=>!(x.gk&&x.gc===cn&&x.d>=o.from&&!seen.has(x.gk)));r.x+=n0-S.ag.length}
+ });
+ return r;
+}
+// abre um .zip (exportação de todas as agendas) e devolve os arquivos .ics de dentro
+async function unzip(buf){
+ const b=new Uint8Array(buf),dv=new DataView(buf),td=new TextDecoder(),out=[];let e=b.length-22;
+ while(e>=0&&dv.getUint32(e,true)!==0x06054b50)e--;if(e<0)throw new Error("zip");
+ let p=dv.getUint32(e+16,true);
+ for(let i=0,n=dv.getUint16(e+10,true);i<n;i++){
+  if(dv.getUint32(p,true)!==0x02014b50)break;
+  const meth=dv.getUint16(p+10,true),csz=dv.getUint32(p+20,true),nl=dv.getUint16(p+28,true),off=dv.getUint32(p+42,true),name=td.decode(b.subarray(p+46,p+46+nl));
+  p+=46+nl+dv.getUint16(p+30,true)+dv.getUint16(p+32,true);
+  if(!/\.ics$/i.test(name))continue;
+  const lo=off+30+dv.getUint16(off+26,true)+dv.getUint16(off+28,true),data=b.subarray(lo,lo+csz);
+  const raw=meth===0?data:meth===8?new Uint8Array(await new Response(new Blob([data]).stream().pipeThrough(new DecompressionStream("deflate-raw"))).arrayBuffer()):null;
+  if(raw)out.push({name:name.split("/").pop(),text:td.decode(raw)});
+ }
+ return out;
+}
+async function lerAgenda(file){
+ try{
+  const buf=await file.arrayBuffer(),b=new Uint8Array(buf);
+  const files=(b[0]===0x50&&b[1]===0x4b?await unzip(buf):[{name:file.name,text:new TextDecoder().decode(b)}]).filter(f=>/BEGIN:VCALENDAR/.test(f.text));
+  if(!files.length)return toast("Arquivo não reconhecido. Use o .ics ou .zip exportado do Google Agenda.");
+  let r;rm(()=>`${pl(r.n,"novo","novos")} · ${pl(r.u,"atualizado","atualizados")}${r.x?" · "+pl(r.x,"removido","removidos"):""}`,()=>{r=icsImport(files,V.kf);V.kres=r});
+ }catch(e){toast("Não foi possível ler o arquivo")}
+}
+// envio: link que abre o Google Agenda com o evento preenchido (1 hora se tiver horário; senão, dia inteiro)
+const gTit=i=>i.t.replace(/^⏳\s*/,"");
+const gNt=i=>{const x=i.k==="t"?i.x.t:i.k==="p"?null:i.x;return x&&x.nt?x.nt:""};
+const gDet=i=>MARCA+" "+plain(i.sub)+(gNt(i)?"\n\n"+gNt(i):"");
+const stamp=dt=>dt.getFullYear()+p2(dt.getMonth()+1)+p2(dt.getDate())+"T"+p2(dt.getHours())+p2(dt.getMinutes())+"00";
+function gUrl(i){
+ let dates;if(i.h){const a=new Date(i.d+"T"+i.h+":00");dates=stamp(a)+"/"+stamp(new Date(a.getTime()+36e5))}else dates=i.d.replace(/-/g,"")+"/"+addD(i.d,1).replace(/-/g,"");
+ let tz="";try{tz=Intl.DateTimeFormat().resolvedOptions().timeZone||""}catch(e){}
+ return"https://calendar.google.com/calendar/render?action=TEMPLATE&text="+encodeURIComponent(gTit(i))+"&dates="+dates+(i.h&&tz?"&ctz="+encodeURIComponent(tz):"")+"&details="+encodeURIComponent(gDet(i));
+}
+// envio em lote: arquivo .ics com todos os prazos de hoje em diante (para importar no Google pelo computador)
+const icsEsc=s=>String(s).replace(/\\/g,"\\\\").replace(/;/g,"\;").replace(/,/g,"\\,").replace(/\r?\n/g,"\\n");
+const icsFold=l=>{let o="";while(l.length>70){o+=l.slice(0,70)+"\r\n ";l=l.slice(70)}return o+l};
+function icsExport(){
+ const td=today(),now=new Date().toISOString().replace(/[-:]/g,"").slice(0,15)+"Z",z=dt=>dt.toISOString().replace(/[-:]/g,"").slice(0,15)+"Z";
+ const L=agItems().filter(i=>!i.dn&&i.d>=td&&!(i.k==="a"&&i.x.gk));
+ const ev=L.map(i=>{const id=i.k==="t"?i.x.t.id:i.k==="p"?"prep-"+i.x.s.id:i.x.id;let dt;
+  if(i.h){const a=new Date(i.d+"T"+i.h+":00");dt=["DTSTART:"+z(a),"DTEND:"+z(new Date(a.getTime()+36e5))]}else dt=["DTSTART;VALUE=DATE:"+i.d.replace(/-/g,""),"DTEND;VALUE=DATE:"+addD(i.d,1).replace(/-/g,"")];
+  return["BEGIN:VEVENT","UID:diario-"+id+"@diario-pesquisa","DTSTAMP:"+now,...dt,"SUMMARY:"+icsEsc(gTit(i)),"DESCRIPTION:"+icsEsc(gDet(i)),"END:VEVENT"].map(icsFold).join("\r\n")});
+ return{n:L.length,txt:["BEGIN:VCALENDAR","VERSION:2.0","PRODID:-//Diario de Pesquisa//PT-BR","CALSCALE:GREGORIAN","X-WR-CALNAME:Diário de Pesquisa",...ev,"END:VCALENDAR"].join("\r\n")+"\r\n"};
+}
+function baixar(nome,txt,tipo){const u=URL.createObjectURL(new Blob([txt],{type:tipo})),a=document.createElement("a");a.href=u;a.download=nome;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),5000)}
+function vK(){
+ const k=V.kf,G={};S.ag.forEach(e=>{if(e.gk)G[e.gc||"?"]=(G[e.gc||"?"]||0)+1});
+ return`<div class="grp">Trazer do Google Agenda</div><div class="card kbox"><ol class="kst"><li>No <b>computador</b>, abra o Google Agenda. Em “Minhas agendas”, passe o mouse na agenda › ⋮ › <b>Configurações e compartilhamento</b> › <b>Exportar agenda</b>. (Pelo app do Google não dá para exportar.)</li><li>Mande o arquivo baixado (.ics, ou .zip se exportou todas) para o celular: Drive, e-mail, WhatsApp...</li><li>Escolha o arquivo aqui. Pode repetir sempre que quiser atualizar: o que já veio é atualizado, não duplicado.</li></ol>`
+ +`<label class="kl">Trazer eventos a partir de<input type="date" id="kfrom" value="${esc(k.from)}"></label><label class="kl">Cor no calendário<select id="kcol">${Object.keys(CL).map(c=>`<option value="${c}"${c===k.col?" selected":""}>${CL[c]}</option>`).join("")}</select></label>`
+ +`<label class="kck"><input type="checkbox" id="krm"${k.rm?" checked":""}><span>Ao atualizar, remover os eventos que foram apagados no Google</span></label><label class="pri kfile">Escolher arquivo .ics ou .zip<input type="file" id="icsf"></label>`
+ +(V.kres?`<p class="kres">Última importação (${esc(V.kres.cals.join(", "))}): ${pl(V.kres.n,"novo","novos")}, ${pl(V.kres.u,"atualizado","atualizados")}${V.kres.x?", "+pl(V.kres.x,"removido","removidos"):""}.</p>`:"")+`</div>`
+ +`<div class="grp">Levar para o Google Agenda</div><div class="card kbox"><p>Na aba <b>Agenda</b>, toque num dia: cada item tem o botão <span class="gbtn" style="pointer-events:none">+ Google</span>, que abre o Google Agenda com o evento já preenchido. É só salvar.</p><p class="note">Para mandar todos os prazos de uma vez, gere o arquivo abaixo e importe no Google Agenda pelo computador (Configurações › Importar e exportar). Use de preferência uma agenda criada só para isso: para atualizar depois, é só apagá-la e importar de novo.</p><button class="sec" data-a="icsx">Gerar arquivo com os prazos (.ics)</button></div>`
+ +(Object.keys(G).length?`<div class="grp">Eventos trazidos do Google</div><div class="card kbox">${Object.keys(G).map(c=>`<div class="r" style="justify-content:space-between;min-height:36px"><span>${esc(c)}</span><small>${pl(G[c],"evento","eventos")}</small></div>`).join("")}<button class="dng" data-a="kclr" style="margin-top:8px">Remover todos os eventos trazidos</button></div>`:"");
+}
+
 const closeMenu=()=>{$("#menu").hidden=true;$("#scrim").hidden=true;syncHist()};
 // ----- abas, deslize e animação -----
-const TABS=["g","p","a","c","r","o","m","b","s"];
+const TABS=["g","p","a","c","r","o","k","m","b","s"];
 let dir=0;
 function go(t){dir=Math.sign(TABS.indexOf(t)-TABS.indexOf(V.tab));V.tab=t;V.g=null;V.s=null;V.u=null;V.ret=null;render();$("#app").scrollTop=0}
 
 // ===== 6. RENDER (redesenha a tela a partir dos dados) =====
-const TTL={m:"Modelos",b:"Backup",s:"Sobre o app",a:"Agenda",c:"Contagens regressivas",r:"Relatório",o:"Organizar"};
+const TTL={m:"Modelos",b:"Backup",s:"Sobre o app",a:"Agenda",c:"Contagens regressivas",r:"Relatório",o:"Organizar",k:"Google Agenda"};
 function render(){
  document.querySelectorAll("#tabs button").forEach(b=>b.classList.toggle("on",b.dataset.i===V.tab));
  const a=$("#app");
- a.innerHTML=V.tab==="g"?(V.u?vSup():V.g?vGen():vGroups()):V.tab==="p"?vDash():V.tab==="a"?vAg():V.tab==="c"?vCd():V.tab==="m"?vTpl():V.tab==="s"?vAbout():V.tab==="r"?vRep():V.tab==="o"?vOrg():vBackup();
+ a.innerHTML=V.tab==="g"?(V.u?vSup():V.g?vGen():vGroups()):V.tab==="p"?vDash():V.tab==="a"?vAg():V.tab==="c"?vCd():V.tab==="m"?vTpl():V.tab==="s"?vAbout():V.tab==="r"?vRep():V.tab==="o"?vOrg():V.tab==="k"?vK():vBackup();
  if(V.tab==="g"&&!V.g&&!V.u)list();
  const sub=V.tab==="g"&&(V.g||V.u);                       // dentro de um gênero ou espécie?
- $("#bk").hidden=!(sub||"mbsro".includes(V.tab));
+ $("#bk").hidden=!(sub||"mbsrok".includes(V.tab));
  $("#ttl").textContent=TTL[V.tab]||(V.u?(V.u==="*"?"Atividades gerais":fam(V.u.split("|")[0]).n):!sub?"Diário de Pesquisa":fam(V.f).n);
  const fa=V.tab==="a"?"addAg":V.tab==="c"?"addCd":V.tab==="g"&&!V.u?(V.g?"addSp":"addFam"):"";   // ação do botão flutuante +
  $("#fab").hidden=!fa;$("#fab").dataset.a=fa;
@@ -436,7 +568,7 @@ function render(){
 // ===== 7. AÇÕES (o que cada botão faz) =====
 const done=()=>{fix();save();closeM();render()}; // fix() garante que itens novos tenham todos os campos
 const A={
- tab(el){const r={tab:V.tab,f:V.f,g:V.g,u:V.u},t=el.dataset.i;closeMenu();go(t);if("mbsro".includes(t)&&r.tab!==t)V.ret=r},   // [v2.1] lembra de onde veio
+ tab(el){const r={tab:V.tab,f:V.f,g:V.g,u:V.u},t=el.dataset.i;closeMenu();go(t);if("mbsrok".includes(t)&&r.tab!==t)V.ret=r},   // [v2.1] lembra de onde veio
  tf(el){const f=fam(el.dataset.i);if(f.o)f.o=0;else{S.f.forEach(x=>x.o=0);f.o=1}save();render()},
  tgf(){const a=!S.f.some(f=>f.o);S.f.forEach(f=>f.o=a?1:0);save();render()},
  tgs(){const g=gen(V.f,V.g),a=!g.spp.some(s=>s.o);g.spp.forEach(s=>s.o=a?1:0);save();render()},
@@ -489,7 +621,11 @@ const A={
  copy(){const t=$("#bkp"),ok=()=>toast("Backup copiado"),fb=()=>{try{document.execCommand("copy")?ok():toast("Selecione o texto e copie manualmente")}catch(e){toast("Selecione o texto e copie manualmente")}};t.focus();t.select();t.setSelectionRange(0,t.value.length);if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(t.value).then(ok,fb);else fb()},
  imp(){let o;try{o=JSON.parse($("#imp").value);if(!o||!Array.isArray(o.f))throw 0}catch(e){return toast("Backup inválido")}conf("Restaurar este backup? Tudo o que está no app agora será substituído.","Restaurar",()=>rm("Backup restaurado",()=>{S=o}))},
  // [v2.1] desfazer a última exclusão
- undo(){if(!UNDO)return;S=JSON.parse(UNDO);UNDO=null;fix();persist();render();toast("Exclusão desfeita")},
+ undo(){if(!UNDO)return;S=JSON.parse(UNDO);UNDO=null;V.kres=null;fix();persist();render();toast("Desfeito")},
+ // [v2.2] Google Agenda
+ gcal(el){const i=AGL[+el.dataset.i];if(i)window.open(gUrl(i),"_blank")},
+ icsx(){const r=icsExport();if(!r.n)return toast("Nenhum prazo de hoje em diante");baixar("diario-prazos-"+today()+".ics",r.txt,"text/calendar");toast(pl(r.n,"prazo","prazos")+" no arquivo")},
+ kclr(){conf("Remover da Agenda todos os eventos trazidos do Google Agenda? (No Google nada muda.)","Remover",()=>rm("Eventos do Google removidos",()=>{S.ag=S.ag.filter(x=>!x.gk)}))},
  // [v2.1] diário de notas
  addNt(){const o=own();form("Nova nota",ntForm,{d:today()},v=>{if(!v.tx)return;o.nts.push({id:uid(),d:v.d||today(),tx:v.tx});done()})},
  eNt(el){const o=own(),n=o.nts.find(x=>x.id===el.dataset.i);form("Editar nota",ntForm,{d:n.d,tx:n.tx},v=>{if(!v.tx)return;n.d=v.d||n.d;n.tx=v.tx;done()},()=>rm("Nota excluída",()=>{o.nts=o.nts.filter(x=>x!==n)}))},
@@ -515,7 +651,9 @@ const A={
 ["click","keydown"].forEach(ev=>document.addEventListener(ev,e=>{const w=e.target.closest&&e.target.closest("[data-sp]");V.ow=w?w.dataset.sp:null},true));   // qual espécie (aba) recebeu o clique/tecla
 document.addEventListener("click",e=>{const el=e.target.closest("[data-a]");if(el&&A[el.dataset.a]){if(el.type!=="checkbox")e.preventDefault&&0;A[el.dataset.a](el)}});
 document.addEventListener("input",e=>{if(e.target.id==="q"){V.q=e.target.value;list()}});
-document.addEventListener("change",e=>{const el=e.target;if(el.dataset&&el.dataset.rp&&el.value){V.rp[el.dataset.rp]=el.value;render()}});   // [v2.1] datas do relatório
+document.addEventListener("change",e=>{const el=e.target;if(el.dataset&&el.dataset.rp&&el.value){V.rp[el.dataset.rp]=el.value;render()}   // [v2.1] datas do relatório
+ if(el.id==="kfrom"&&el.value)V.kf.from=el.value;if(el.id==="kcol")V.kf.col=el.value;if(el.id==="krm")V.kf.rm=el.checked?1:0;   // [v2.2] opções da importação
+ if(el.id==="icsf"&&el.files&&el.files[0]){lerAgenda(el.files[0]);el.value=""}});
 document.addEventListener("keydown",e=>{const el=e.target;if(e.key==="Enter"&&el.dataset&&el.dataset.sub&&el.value.trim()){const t=own().tasks.find(x=>x.id===el.dataset.sub);t.b.push({id:uid(),t:el.value.trim(),x:0});save();render();const n=document.querySelector(`[data-sub="${t.id}"]`);if(n)n.focus()}});
 // deslizar com o dedo: a tela acompanha o gesto e troca com animação suave
 const pane=$("#app");

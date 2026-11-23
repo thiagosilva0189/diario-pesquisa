@@ -395,3 +395,21 @@ h2.rph{font-size:21px;margin:14px 0 4px}
 #thm .tsel{margin-left:auto;display:flex;gap:2px;background:var(--card2);border:1px solid var(--line);border-radius:99px;padding:3px}
 #menu #thm button{display:block;width:auto;padding:6px 10px;font-size:13px;font-weight:600;border-radius:99px;color:var(--mut)}
 #menu #thm button.on{background:var(--acc);color:var(--onacc)}
+
+/* =====================================================================
+   [v2.2] Google Agenda
+   ===================================================================== */
+.kbox{padding:14px 16px}
+.kbox p{margin:0 0 10px;line-height:1.5}
+.kst{margin:0 0 14px;padding-left:20px;line-height:1.5;font-size:14.5px}
+.kst li{display:list-item;margin-bottom:6px;border-top:0;min-height:0}
+.kst li::marker{color:var(--ambt);font-weight:700}
+.kl{display:block;font-size:12.5px;font-weight:600;color:var(--mut);margin-bottom:10px}
+.kl>*{margin-top:4px;font-weight:400;font-size:16px}
+.kck{display:flex;align-items:flex-start;gap:10px;font-size:14.5px;margin:4px 0 14px;line-height:1.35}
+.kck input{margin-top:1px}
+.kfile{display:flex;align-items:center;justify-content:center;width:100%;cursor:pointer;text-align:center}
+.kfile input{display:none}
+.kres{margin:12px 0 0!important;font-size:14px;color:var(--acc);font-weight:600}
+.gbtn{flex:none;border:1px solid var(--line2);background:var(--card);color:var(--acc);font-size:12px;font-weight:700;border-radius:99px;padding:5px 10px;white-space:nowrap;line-height:1.2}
+.gbtn:active{background:var(--accb)}
