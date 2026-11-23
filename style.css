@@ -106,3 +106,15 @@ li label{display:flex;gap:8px;align-items:center;padding:4px 0}
 .cg>small:first-child{color:var(--blue)}
 .sc{position:absolute;top:2px;right:5px;font-size:10px;font-weight:700;color:var(--gray)}
 .sc.M{color:var(--yellow)}.sc.N{color:var(--purple)}.sc.F{color:var(--green)}
+
+/* ajustes: letra da escala, legenda, botões compactos, subabas do painel */
+.cl{padding:14px 0 4px;min-height:58px}
+.sc{top:2px;right:4px;font-size:9px;line-height:1}
+details.lg{margin-top:12px;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:8px 14px}
+details.lg summary{cursor:pointer;font-weight:600;color:var(--mut)}
+details.lg p{margin:8px 0 0}
+.acts.fb{flex-wrap:nowrap;gap:6px;padding:8px 10px;overflow-x:auto}
+.acts.fb .sec,.acts.fb .lnk{font-size:13px;padding:7px 9px;white-space:nowrap}
+.seg{display:flex;gap:6px;margin:12px 0}
+.seg button{flex:1;border:1px solid var(--line);background:var(--card);border-radius:12px;padding:9px 2px;font-size:12.5px;font-weight:600;color:var(--mut)}
+.seg button.on{background:var(--accb);color:var(--acc);border-color:var(--acc)}
