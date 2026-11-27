@@ -4,9 +4,9 @@
 //
 // [v1.1] arquivo criado quando o app ficou independente (instalável e offline).
 // O nome do CACHE ganha +1 a cada atualização entregue, para o celular trocar a
-// cópia antiga pela nova: diario-v13 corresponde à versão 2.3 do app.
+// cópia antiga pela nova: diario-v14 corresponde à versão 2.4 do app.
 // (Histórico completo de versões: topo do app.js.)
-const CACHE = "diario-v13";   // v13: versão 2.3 (conta Google, morfologia externa)
+const CACHE = "diario-v14";   // v14: versão 2.4 (seções da espécie, agenda, configurações)
 const ARQUIVOS = [
   "./", "index.html", "style.css", "app.js",
   "manifest.webmanifest", "icon-192.png", "icon-512.png"
