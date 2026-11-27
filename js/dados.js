@@ -35,7 +35,8 @@ const tpChip=v=>v===ME?ME:v==="Completa"||v==="Parcial"?"Dissecção "+v.toLower
 // [v2.4] CONFIGURAÇÕES padrão: s.. = seções da espécie · sug = sugestões do modelo · na = etapa "não será realizada"
 //        grpv = exibição dos subgrupos · hoje/prod = cartões do Painel · xi = antecedência dos ‼ · fer = feriados
 //        reg = etapas concluídas no calendário · rem = aviso do Google Agenda
-const DCFG={sty:1,sdi:1,shb:1,sdp:1,sme:1,smo:1,sta:1,snt:1,sug:1,na:1,grpv:"lista",hoje:1,prod:1,xi:30,fer:1,reg:1,rem:"900"};
+// [v2.5] sat = atos nomenclaturais · snv = checklist da espécie nova/gênero novo · slo = material · nvt = cartão Novidades taxonômicas
+const DCFG={sty:1,sdi:1,shb:1,sdp:1,sme:1,smo:1,sta:1,snt:1,sug:1,na:1,grpv:"lista",hoje:1,prod:1,xi:30,fer:1,reg:1,rem:"900",sat:1,snv:1,slo:1,nvt:1};
 // [v1.2] níveis dos modelos · [v1.3] "Família / geral" e "Todos os níveis"
 const LV = {g:"Só gênero", s:"Só espécie", gs:"Gênero e espécie", f:"Família / geral", gsf:"Todos os níveis"};
 // [v1.5] cores por situação e por prioridade
@@ -170,6 +171,12 @@ function fix(){ // completa dados antigos com os campos novos
  // gênero e espécies [v1.2] · situação e prioridade da espécie [v1.8] · nts [v2.1] · est, me [v2.3]
  // [v2.4] dist/dsp (distribuição do gênero), ty (material-tipo), dist, mol (molecular) e op (seções abertas) da espécie
  S.f.forEach(f=>f.g.forEach(g=>{g.tasks=g.tasks||[];g.spp=g.spp||[];g.nts=g.nts||[];g.est=g.est||"";g.dist=g.dist||"";if(g.dsp===undefined)g.dsp=1;g.spp.forEach(s=>{s.parts=s.parts||[];s.me=s.me||[];s.hab=s.hab||[];s.tasks=s.tasks||[];s.nts=s.nts||[];s.st=s.st||GST[0];s.p=s.p||PRIO[1];s.ty=s.ty||{pr:"",L:[],lt:"",nt:""};s.dist=s.dist||"";s.mol=s.mol||{a:0,e:0,v:"",ms:[]};s.op=s.op||{ta:1}})}));
+ // [v2.5] atos nomenclaturais (at), checklist da espécie nova/gênero novo (nv), seções abertas do gênero (op) e
+ //        material da espécie (lo); o antigo "Material disponível" (ex) vira um lote de material próprio
+ S.f.forEach(f=>f.g.forEach(g=>{g.at=g.at||[];g.nv=g.nv||{};g.op=g.op||{};g.spp.forEach(s=>{s.at=s.at||[];s.nv=s.nv||{};s.lo=s.lo||[];
+  if(s.ex){if(!s.lo.some(l=>l.nt===s.ex))s.lo.push({id:uid(),o:"p",e:"",n:"",sx:"",nt:s.ex});delete s.ex}})}));
+ S.emp=S.emp||[];S.emp.forEach(e=>{e.pr=e.pr||[];if(!e.av)e.av=30});   // [v2.5] empréstimos (pr = prorrogações)
+ S.mx=S.mx||[];S.mx.forEach(m=>{m.T=m.T||[]});                          // [v2.5] matrizes de caracteres (T = terminais)
 }
 fix();
 // [v1.0] tela atual (aba, família, gênero, busca) · [v1.3] u = atividades da família/gerais
@@ -180,6 +187,7 @@ V.rp={k:"7",a:addD(today(),-6),b:today()};   // [v2.1] período do relatório
 V.oF=null;V.oG=null;V.ret=null;               // [v2.1] tela Organizar: família/gênero abertos e tela de retorno
 V.kf={from:today(),col:"blue",rm:1};V.kres=null; // [v2.2] opções e resultado da importação do Google Agenda
 V.hs=[];   // [v2.4] caminho percorrido na aba Grupos (família › subgrupo › gênero), para o "voltar"
+V.eo=null;V.mo=null;V.nvk="";   // [v2.5] empréstimo e matriz abertos; tipo de ato escolhido no Painel
 // [v2.0] área que rola (usada pelos gestos de deslizar e pelo arrastar da tela Organizar)
 const pane=$("#app");
 // [v1.0] achar família e gênero · [v1.2] achar espécie · [v2.1] gênero só pelo código (gById)

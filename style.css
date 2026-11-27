@@ -15,6 +15,8 @@
    [v2.3]  Sincronização, morfologia externa, subitens e ✓ no calendário (fim do arquivo).
    [v2.4]  Seções da espécie, caixinha de 3 estados, material-tipo, molecular, subgrupos,
            ‼ importantes e Configurações (fim do arquivo).
+   [v2.5]  Atos nomenclaturais, checklist, material e empréstimos, matrizes e
+           Novidades taxonômicas (fim do arquivo).
    --------------------------------------------------------------------- */
 
 /* ---------- 1. Paleta (modo claro) ---------- */
@@ -209,6 +211,8 @@ button.chip{border:1px solid var(--line2);background:var(--card);color:var(--ink
 button.chip:active{background:var(--accb)}
 button.chip.blue,button.chip.red{border-color:transparent}
 button.chip[data-a="tq"],button.chip[data-a="ap"],button.chip[data-a="ah"]{border-style:dashed;background:transparent;color:var(--acc);font-weight:600}
+/* [v2.5] também estruturas, marcadores e atos nomenclaturais de 1 clique */
+button.chip[data-a="am"],button.chip[data-a="mka"],button.chip[data-a="ata"]{border-style:dashed;background:transparent;color:var(--acc);font-weight:600}
 
 /* progresso = barra de escala de ilustração científica (10 segmentos) */
 /* [v1.0] barra de progresso · [v2.0] desenhada como escala de ilustração */
@@ -574,3 +578,79 @@ details.kd .grp{margin-top:16px}
 .rpi[data-a]{cursor:pointer;border-radius:6px}
 .rpi[data-a]:active{background:var(--card2)}
 .card.rpg.und{cursor:pointer;border-left:4px solid var(--amb)}
+
+/* =====================================================================
+   [v2.5] Atos nomenclaturais, checklist da espécie nova / gênero novo,
+          material e empréstimos, matrizes de caracteres e
+          cartão Novidades taxonômicas
+   ===================================================================== */
+/* atos nomenclaturais: etiqueta invertida (como uma etiqueta impressa) */
+.chip.at{background:var(--ink);color:var(--card);letter-spacing:.02em}
+button.chip.at{border-color:transparent;font-size:12.5px;font-weight:700;padding:5px 10px}
+.atl{padding:2px 12px;margin-bottom:8px}
+.atr{min-height:46px;border-bottom:1px dashed var(--line)}
+.atr:last-child{border-bottom:0}
+.atr .chip{margin:0;flex:none}
+.atr .g1{font-size:14px;line-height:1.3}
+.atr small{font-size:12px}
+/* Material-tipo: "designado neste trabalho" */
+.tyz{display:flex;align-items:center;gap:10px;margin:4px 0 10px;font-size:14px;line-height:1.3;cursor:pointer}
+/* checklist: caixinha fixa (preenchida sozinha) */
+.nvl{padding:2px 12px;margin-bottom:8px}
+.nvr{min-height:48px;border-bottom:1px dashed var(--line);padding:4px 0}
+.nvr:last-child{border-bottom:0}
+.nvr .g1{display:flex;flex-direction:column;gap:1px}
+.nvr .g1 b{font-weight:600;font-size:14.5px}
+.nvr small{font-size:12px;line-height:1.3;overflow-wrap:anywhere}
+.nvr .lnk{padding:6px 8px;font-size:13px}
+.tc.fx{cursor:default;border-style:dashed}
+.tc.fx.on{border-style:solid}
+/* material da espécie e etiquetas de empréstimo (âmbar; vermelho perto do prazo) */
+.chip.emp{background:var(--ambb);color:var(--ambt)}
+.chip.emp.soon,.chip.emp.late{background:var(--redb);color:var(--red)}
+button.chip.emp,button.chip.mx{border-color:transparent;font-size:12px;font-weight:600;padding:3px 9px;margin:5px 6px 0 0;border-radius:7px}
+.lol{padding:2px 12px;margin-bottom:8px}
+.lor{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px dashed var(--line);cursor:pointer}
+.lor:last-child{border-bottom:0}
+.lor:active{background:var(--card2)}
+.lor .chip{margin:0;flex:none;max-width:42%;overflow:hidden;text-overflow:ellipsis}
+.lor .g1{display:flex;flex-direction:column;gap:1px}
+.lor .g1 b{font-weight:600;font-size:14.5px}
+.lor small{font-size:12px;line-height:1.3}
+.lor>b.note{flex:none;font-weight:400}
+/* tela Empréstimos */
+.empc .fh .g1,.mxc .fh .g1{display:flex;flex-direction:column;gap:2px}
+.empc .fh b,.mxc .fh b{font:600 17px/1.2 var(--serif)}
+.empc .fh small,.mxc .fh small{font-size:12.5px}
+.empc.soon{border-left:5px solid var(--orange)}
+.empc.late{border-left:5px solid var(--red)}
+.empb{padding:0 14px 12px;margin-top:-8px}
+.empd,.mxd{padding:0 14px 12px;border-top:1px solid var(--line)}
+.empd>.grp:first-child,.empd .grp{margin-top:16px}
+.empg{display:grid;grid-template-columns:repeat(2,1fr);gap:6px;margin:12px 0 4px}
+.empg>div{display:flex;flex-direction:column;gap:2px;background:var(--card2);border:1px solid var(--line);border-radius:10px;padding:7px 10px}
+.empg small{font-size:10.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--ambt)}
+.empg span{font:13.5px var(--mono)}
+.empd .hj b{font-weight:600}
+/* matrizes de caracteres */
+.mxb{padding:0 14px 12px;margin-top:-8px}
+.mxb .bar{margin-top:0}
+.mxt{display:grid;grid-template-columns:1fr 60px 64px;align-items:center;gap:8px;padding:9px 2px;border-bottom:1px dashed var(--line);cursor:pointer;font-size:14.5px}
+.mxt:active{background:var(--card2)}
+.mxt .g1{overflow:hidden;text-overflow:ellipsis}
+.mxt .chip{margin:0 0 0 4px;font-size:10.5px;padding:2px 6px}
+.mxm{height:6px;background:var(--line);border-radius:3px;overflow:hidden}
+.mxm i{display:block;height:100%;background:linear-gradient(90deg,var(--acc),var(--acc2))}
+.mxt small{font:12px var(--mono);text-align:right}
+.mxd>.mxt:first-child,.mxd>.note:first-child{margin-top:6px}
+.chip.mx{background:var(--bluebg);color:var(--blue)}
+/* Painel: % das matrizes e Novidades taxonômicas (tocar mostra os táxons) */
+.stats.s1{grid-template-columns:1fr}
+.stats.s2{grid-template-columns:repeat(2,1fr)}
+.stats>div[data-a]{cursor:pointer}
+.stats>div[data-a]:active{background:var(--card2)}
+.stats.nvt>button{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:10px 4px 9px;text-align:center;box-shadow:var(--sh);font:inherit;color:var(--ink)}
+.stats.nvt>button.on{border-color:var(--acc);box-shadow:0 0 0 2px var(--accb)}
+.stats.nvt>button:active{background:var(--card2)}
+.card.nvtl{padding:2px 16px}
+.card.nvtl .hj:first-child{border-top:0}

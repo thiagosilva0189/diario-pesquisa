@@ -6,6 +6,7 @@
   [v2.3] login do Google, nuvem de sincronização e faixa "Toque para sincronizar".
   [v2.4] item Configurações no menu ⋮.
   [v2.4.1] o app.js foi dividido em arquivos na pasta js/ (lista no fim desta página).
+  [v2.5] itens Empréstimos e Matrizes no menu ⋮ e 3 arquivos novos (nomenclatura, emprestimos, matrizes).
   Histórico completo de versões: js/versao.js.
 -->
 <html lang="pt-BR">
@@ -55,6 +56,9 @@
 <!-- menu ⋮ (visual v2.0) -->
 <div id="scrim" data-a="menu" hidden></div>
 <div id="menu" hidden>
+  <!-- [v2.5] Empréstimos de material e Matrizes de caracteres -->
+  <button data-a="tab" data-i="e"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.5 20 7.8v8.4L12 20.5 4 16.2V7.8z"/><path d="M4 7.8 12 12l8-4.2M12 12v8.5M8 5.6l8 4.3"/></svg>Empréstimos</button>
+  <button data-a="tab" data-i="x"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="4" width="17" height="16" rx="2"/><path d="M3.5 9.3h17M3.5 14.7h17M9.2 4v16M14.8 4v16"/></svg>Matrizes de caracteres</button>
   <!-- [v2.1] Relatório do período e Organizar -->
   <button data-a="tab" data-i="r"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3.5H7a1.5 1.5 0 0 0-1.5 1.5v14A1.5 1.5 0 0 0 7 20.5h10a1.5 1.5 0 0 0 1.5-1.5V8z"/><path d="M14 3.5V8h4.5M9 12.5h6M9 16h4"/></svg>Relatório do período</button>
   <button data-a="tab" data-i="o"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M8 20V4M4.5 7.5 8 4l3.5 3.5M16 4v16M12.5 16.5 16 20l3.5-3.5"/></svg>Organizar (arrastar e A–Z)</button>
@@ -83,6 +87,9 @@
 <script src="js/atividades.js"></script>
 <script src="js/grupos.js"></script>
 <script src="js/especie.js"></script>
+<script src="js/nomenclatura.js"></script>
+<script src="js/emprestimos.js"></script>
+<script src="js/matrizes.js"></script>
 <script src="js/painel.js"></script>
 <script src="js/agenda.js"></script>
 <script src="js/relatorio.js"></script>

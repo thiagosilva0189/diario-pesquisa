@@ -11,8 +11,10 @@
 let REPI=[];   // [v2.4] refs dos itens mostrados (o número do item é a posição aqui)
 const rf=(o,k,lab)=>({lab,v:o[k],set:d=>{o[k]=d}});
 const MOLR=[["a","a","Tecido (amostra)","tecido separado"],["e","e","Extração de DNA","DNA extraído"]];   // [4] = texto no relatório
+// [v2.5] checklist da espécie nova e do gênero novo (itens marcados à mão) e empréstimos (C.e)
+const nvRep=L=>L.filter(it=>!it.so).map(it=>[it.k,"",it.l,it.l.replace(/\s*\(.*\)$/,"").replace(/^./,c=>c.toLowerCase())]);   // "Registro no ZooBank (LSID)" → "registro no ZooBank"
 function repData(a,b){
- const inR=v=>isDate(v)&&v>=a&&v<=b,G=[],C={t:0,b:0,p:0,h:0,n:0};
+ const inR=v=>isDate(v)&&v>=a&&v<=b,G=[],C={t:0,b:0,p:0,h:0,n:0,e:0};
  const add=(key,lh,lt,d,th,tt,c,q,r)=>{let g=G.find(x=>x.key===key);if(!g)G.push(g={key,lh,lt,it:[]});g.it.push({d,th,tt,r:r||[]});C[c]+=q||1};
  const tk=(key,lh,lt,o)=>{
   o.tasks.forEach(t=>{if(inR(t.dc))add(key,lh,lt,t.dc,"Atividade concluída: <b>"+esc(t.t)+"</b>","Atividade concluída: "+t.t,"t",1,[rf(t,"dc","Atividade: "+t.t)]);
@@ -25,9 +27,11 @@ function repData(a,b){
  S.f.forEach(f=>{
   tk(f.id,esc(f.n),f.n,f);
   f.grp.forEach(x=>tk(x.id,esc(grl(x))+" · "+esc(f.n),grl(x)+" ("+f.n+")",x));
-  f.g.forEach(g=>{
-   tk(g.id,gl(g)+" · "+esc(f.n),"Gênero "+g.n+(auth(g)?" "+auth(g):"")+" ("+f.n+")",g);
+  f.g.forEach(g=>{const gh=gl(g)+" · "+esc(f.n),gt="Gênero "+g.n+(auth(g)?" "+auth(g):"")+" ("+f.n+")";
+   tk(g.id,gh,gt,g);
+   st(g.id,gh,gt,[g.nv],nvRep(NVG),()=>"checklist","Gênero novo","p");   // [v2.5]
    g.spp.forEach(s=>{const nm=fullSp(g,s),lh=spH(g,s,1)+" · "+esc(f.n),lt=nm+(auth(s)?" "+auth(s):"")+" ("+f.n+")",K=s.id;
+    st(K,lh,lt,[s.nv],nvRep(NVS),()=>"checklist","Espécie nova","p");     // [v2.5]
     st(K,lh,lt,s.parts,STEPS,p=>p.n,"Peças","p");
     st(K,lh,lt,s.hab,[["x","x","fotografado"]],p=>p.n,"Habitus","h");
     st(K,lh,lt,s.me,STEPS_ME,p=>p.n,"Morfologia externa","p");   // [v2.3]
@@ -37,6 +41,10 @@ function repData(a,b){
     tk(K,lh,lt,s)})})});
  S.ag.forEach(e=>{if(inR(e.dc))add("ag","Agenda","Agenda",e.dc,"Concluída: <b>"+esc(e.t)+"</b>","Concluída: "+e.t,"t",1,[rf(e,"dc","Agenda: "+e.t)]);
   (e.dd||[]).forEach((d,j)=>{if(inR(d))add("ag","Agenda","Agenda",d,"Concluída (repetição): <b>"+esc(e.t)+"</b>","Concluída (repetição): "+e.t,"t",1,[{lab:"Agenda: "+e.t,v:d,set:nd=>{e.dd[j]=nd}}])})});   // [v2.4]
+ // [v2.5] empréstimos: pedido, recebimento, prorrogações e devolução
+ S.emp.forEach(e=>{const nm=empNome(e),it=(k,l)=>{if(inR(e[k]))add("emp","Empréstimos","Empréstimos",e[k],l+": <b>"+esc(nm)+"</b>",l+": "+nm,"e",1,[rf(e,k,l+": "+nm)])};
+  it("dp","Empréstimo solicitado");it("dr","Empréstimo recebido");it("dv","Empréstimo devolvido");
+  e.pr.forEach(p=>{if(inR(p.d))add("emp","Empréstimos","Empréstimos",p.d,"Prorrogação: <b>"+esc(nm)+"</b> (novo prazo "+fmt(p.nd)+")","Prorrogação: "+nm+" (novo prazo "+fmt(p.nd)+")","e",1,[rf(p,"d","Prorrogação: "+nm)])})});
  G.forEach(g=>g.it.sort((x,y)=>x.d.localeCompare(y.d)));return{G,C};
 }
 // [v2.4] CONCLUÍDAS SEM DATA: atividades, subitens e etapas marcados como feitos sem data guardada
@@ -58,7 +66,7 @@ function vRep(){
  const ch=(n,a,b,c)=>n?`<span class="chip ${c}">${pl(n,a,b)}</span>`:"",U=undData();
  return`<div class="seg">${P.map(([i,l])=>`<button class="${r.k===i?"on":""}" data-a="rpk" data-i="${i}">${l}</button>`).join("")}</div>`
  +(r.k==="x"?`<div class="rpd"><label>De<input type="date" data-rp="a" value="${r.a}"></label><label>Até<input type="date" data-rp="b" value="${r.b}"></label></div>`:"")
- +`<h2 class="rph">${fmt(r.a)} a ${fmt(r.b)}</h2><div>${ch(C.t,"atividade concluída","atividades concluídas","green")}${ch(C.b,"subitem","subitens","")}${ch(C.p,"etapa de peça ou estrutura","etapas de peças e estruturas","blue")}${ch(C.h,"habitus","habitus","purple")}${ch(C.n,"nota","notas","yellow")}</div>`
+ +`<h2 class="rph">${fmt(r.a)} a ${fmt(r.b)}</h2><div>${ch(C.t,"atividade concluída","atividades concluídas","green")}${ch(C.b,"subitem","subitens","")}${ch(C.p,"etapa concluída","etapas concluídas","blue")}${ch(C.h,"habitus","habitus","purple")}${ch(C.n,"nota","notas","yellow")}${ch(C.e,"registro de empréstimo","registros de empréstimos","orange")}</div>`
  +(G.map(g=>`<div class="card rpg"><b>${g.lh}</b>${g.it.map(i=>`<div class="rpi" data-a="rpe" data-i="${ref(i.r)}"><small>${fmt(i.d).slice(0,5)}</small><span>${i.th}</span></div>`).join("")}</div>`).join("")||'<div class="empty">Nada registrado neste período.</div>')
  +(G.length?`<p class="note">Toque num item para corrigir a data.</p><div class="tools"><button class="pri" data-a="rpc">Copiar relatório</button>${navigator.share?'<button class="sec" data-a="rps">Compartilhar</button>':""}</div>`:"")
  +(U.length?`<div class="grp">Concluídas sem data (${U.reduce((n,u)=>n+u.r.length,0)})</div><p class="note">Coisas marcadas como feitas antes de o diário guardar datas. Toque para informar quando foram feitas: passam a contar no relatório do período e aparecem no calendário.</p>`

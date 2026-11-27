@@ -27,11 +27,14 @@ function occ(e,lo,hi){const r=e.rp,out=[],ex=new Set(e.ex||[]),n=Math.max(1,+r.n
 const rptL=r=>{const n=+r.n||1;return(n===1?{d:"todo dia",w:"toda semana",m:"todo mês",y:"todo ano"}[r.f]:"a cada "+n+" "+{d:"dias",w:"semanas",m:"meses",y:"anos"}[r.f])+(r.u?" até "+fmt(r.u):"")};
 const nextOcc=e=>occ(e,today(),addD(today(),800)).find(d=>!e.dd.includes(d))||"";   // próxima data ainda não concluída
 // [v2.4] REGISTRO DO DIA: etapas concluídas (peças, estruturas, habitus, molecular, tipos) aparecem como ✓ no calendário
-function regItems(){const R={};
- S.f.forEach(f=>f.g.forEach(g=>g.spp.forEach(s=>{const ad=(v,w)=>{if(!isDate(v))return;const k=v+"|"+s.id;(R[k]=R[k]||{d:v,f,g,s,c:{}}).c[w]=(R[k].c[w]||0)+1};
-  s.parts.forEach(p=>STEPS.forEach(x=>ad(p[x[0]],"peças")));s.hab.forEach(h=>ad(h.x,"habitus"));s.me.forEach(p=>STEPS_ME.forEach(x=>ad(p[x[0]],"morfologia externa")));
-  MOLA.forEach(x=>ad(s.mol[x[0]],"molecular"));s.mol.ms.forEach(m=>MOLST.forEach(x=>ad(m[x[0]],"molecular")));s.ty.L.forEach(r=>TYST.forEach(x=>ad(r[x[0]],"material-tipo")))})));
- return Object.values(R).map(r=>({d:r.d,t:"✓ "+abbr(r.g,r.s.n)+" — "+Object.keys(r.c).map(k=>k+" "+r.c[k]).join(" · "),col:"gray",k:"r",dn:1,sub:"Etapas concluídas · "+esc(r.g.n)+" · "+esc(r.f.n),x:{f:r.f,g:r.g,s:r.s}}))}
+// [v2.5] + itens do checklist da espécie nova e do gênero novo (o do gênero fica numa linha do gênero)
+function regItems(){const R={},ad=(v,w,f,g,s)=>{if(!isDate(v))return;const k=v+"|"+(s||g).id;(R[k]=R[k]||{d:v,f,g,s,c:{}}).c[w]=(R[k].c[w]||0)+1};
+ S.f.forEach(f=>f.g.forEach(g=>{NVG.forEach(it=>ad(g.nv[it.k],"gênero novo",f,g,null));
+  g.spp.forEach(s=>{const a=(v,w)=>ad(v,w,f,g,s);
+  s.parts.forEach(p=>STEPS.forEach(x=>a(p[x[0]],"peças")));s.hab.forEach(h=>a(h.x,"habitus"));s.me.forEach(p=>STEPS_ME.forEach(x=>a(p[x[0]],"morfologia externa")));
+  MOLA.forEach(x=>a(s.mol[x[0]],"molecular"));s.mol.ms.forEach(m=>MOLST.forEach(x=>a(m[x[0]],"molecular")));s.ty.L.forEach(r=>TYST.forEach(x=>a(r[x[0]],"material-tipo")));
+  NVS.forEach(it=>a(s.nv[it.k],"espécie nova"))})}));
+ return Object.values(R).map(r=>({d:r.d,t:"✓ "+(r.s?abbr(r.g,r.s.n):"Gênero "+r.g.n)+" — "+Object.keys(r.c).map(k=>k+" "+r.c[k]).join(" · "),col:"gray",k:"r",dn:1,sub:"Etapas concluídas · "+esc(r.g.n)+" · "+esc(r.f.n),x:{f:r.f,g:r.g,s:r.s}}))}
 // [v1.8] tudo que tem data vai para a Agenda · [v2.2] eventos trazidos do Google Agenda
 // [v2.4] repetições (lo..hi = período em que as datas são calculadas), tarefa sem data concluída aparece no dia em que
 //        foi feita, ‼ dos extremamente importantes e registro das etapas concluídas
@@ -43,12 +46,15 @@ function agItems(lo,hi){ // tudo que tem data: atividades do app, prazos de prep
  S.ag.forEach(e=>{const sub=(e.gk?"Google Agenda"+(e.gc?" · "+esc(e.gc):""):"Agenda")+(e.p?" · prioridade "+e.p.toLowerCase():"")+(e.pn?" · no Painel":""),b={h:e.h,t:e.t,k:"a",x:e,xi:e.xi,av:e.av};
   if(e.rp&&e.rp.f&&e.d)occ(e,lo,hi).forEach(oc=>{const dn=e.dd.includes(oc);L.push(Object.assign({},b,{d:oc,oc,col:dn?"gray":e.col,sub:sub+" · repete "+rptL(e.rp),dn}))});   // [v2.4] cada dia da repetição
   else{const dn=e.s===STAT[2],d=e.d||(dn?e.dc:"");if(d)L.push(Object.assign({},b,{d,col:dn?"gray":e.col,sub:sub+(e.d?"":" · tarefa sem data"),dn}))}});
+ // [v2.5] prazo de devolução dos empréstimos (‼, com a antecedência do aviso); devolvido fica com ✓ no dia da devolução
+ S.emp.forEach(e=>{if(!e.dd)return;const dn=e.st===EST[2];L.push({d:dn&&e.dv?e.dv:e.dd,t:"Devolver empréstimo — "+empNome(e),col:dn?"gray":"yellow",k:"e",sub:"Empréstimo · "+esc(e.st.toLowerCase())+(e.cur?" · "+esc(e.cur):"")+(dn&&e.dv&&e.dv!==e.dd?" · prazo era "+fmt(e.dd):""),dn,x:e,xi:dn?0:1,av:e.av})});
  if(S.cfg.reg)L.push(...regItems());   // [v2.4]
  return L;
 }
 // abre o item tocado na Agenda ou no cartão "Hoje"
 // [v2.1] (a Agenda abria os itens desde a v1.8; aqui virou uma função só, usada também pelo cartão Hoje) · [v2.4] repetição e registro
-function openIt(i){if(!i)return;if(i.k==="t")editTask(i.x.o||i.x.s||i.x.g,i.x.t);else if(i.k==="p"||i.k==="r")A.og({dataset:{i:i.x.f.id+"|"+i.x.g.id+"|"+i.x.s.id}});else if(i.k==="c")A.ecd({dataset:{i:i.x.id}});else eagO(i.x,i.oc||"")}
+// [v2.5] empréstimo (abre a tela Empréstimos) e registro do gênero (sem espécie)
+function openIt(i){if(!i)return;if(i.k==="t")editTask(i.x.o||i.x.s||i.x.g,i.x.t);else if(i.k==="p"||i.k==="r")A.og({dataset:{i:i.x.f.id+"|"+i.x.g.id+"|"+(i.x.s?i.x.s.id:"")}});else if(i.k==="c")A.ecd({dataset:{i:i.x.id}});else if(i.k==="e")openEmp(i.x.id);else eagO(i.x,i.oc||"")}
 // [v2.4] editar atividade da agenda; numa repetição dá para pular só aquele dia
 function eagO(e,oc){const rp=e.rp&&e.rp.f;form("Editar atividade da agenda",agForm,agVals(e),v=>{if(!v.t)return toast("Informe a atividade");agSave(e,v);if(v.d)V.cal.d=v.d;done()},()=>rm(rp?"Atividade e repetições excluídas":"Atividade excluída",()=>{S.ag=S.ag.filter(x=>x!==e)}),rp?"Excluir todas":"",oc&&rp?[{l:"Pular só "+fmt(oc),f:()=>rm("Dia pulado",()=>{e.ex.push(oc)})}]:null)}
 // ----- escala de trabalho e feriados -----
@@ -91,7 +97,7 @@ function vAg(){
  +(day.map((i,n)=>`<div class="card gen${i.k==="r"?" reg":""}" style="border-top:0" data-a="agi" data-i="${n}"><div class="r">${i.k==="t"||i.k==="a"?`<button class="agck ${i.dn?"on":i.col}" data-a="agck" data-i="${n}" title="${i.dn?"Desmarcar":"Marcar como concluída"}">${i.dn?"✓":""}</button>`:`<i class="dot ${i.k==="r"?"ok":i.col}"></i>`}<b class="g1">${i.xi&&!i.dn?'<span class="xib">‼</span> ':""}${i.oc?'<span class="rpi-i" title="Repete">↻</span> ':""}${esc(i.t)}</b><small>${i.h?esc(i.h):""}</small>${i.dn||i.k==="r"||i.x.gk||gAuto()?"":`<button class="gbtn" data-a="gcal" data-i="${n}" title="Adicionar ao Google Agenda">+ Google</button>`}</div><small>${i.sub}</small></div>`).join("")||'<div class="empty">Nada neste dia. Toque no + para criar uma atividade.</div>')
  +`<div class="r" style="justify-content:space-between"><div class="grp">Sem data (${nd2.length})</div><button class="lnk" data-a="addNd">+ Tarefa sem data</button></div>`   // [v2.4] tarefas sem data
  +(nd2.map(e=>`<div class="card gen" style="border-top:0" data-a="eag" data-i="${e.id}"><div class="r"><button class="agck ${e.col}" data-a="ndck" data-i="${e.id}" title="Marcar como concluída"></button><b class="g1">${e.xi?'<span class="xib">‼</span> ':""}${esc(e.t)}</b></div>${e.nt?`<small>${esc(e.nt)}</small>`:""}</div>`).join("")||'<div class="note" style="margin:0 2px 10px">Coisas que precisam ser feitas, mas sem dia marcado. Ao concluir, ficam no calendário do dia em que foram feitas.</div>')
- +'<div class="tools" style="margin-top:12px;flex-wrap:wrap"><button class="sec" data-a="escf">⚙ Escala de trabalho</button><button class="sec" data-a="tab" data-i="k">Google Agenda</button></div><details class="lg"><summary>Legenda</summary><p class="note">Escala no canto de cada dia (M manhã · N noite · F folga). Domingos em azul; feriados com o número em vermelho. Cores dos prazos: vermelho = prioridade alta, amarelo = média, verde = baixa, azul = sem prioridade, ✓ = concluída (atividades concluídas aparecem no dia em que foram feitas; toque no círculo para marcar ou desmarcar); laranja = dissecção/preparação; roxo = contagem regressiva; ‼ = extremamente importante; ↻ = repete (cada dia pode ser marcado ou pulado). Itens cinza com ✓ mostram as etapas feitas naquele dia (peças, habitus, molecular...). Atividades criadas na agenda usam a cor escolhida. Com a conta Google conectada (menu ⋮ › Google), tudo isso vai sozinho para a agenda “Diário de Pesquisa (app)”; sem ela, o botão + Google abre o Google Agenda com o item já preenchido; eventos trazidos do Google aparecem como “Google Agenda”.</p></details>';
+ +'<div class="tools" style="margin-top:12px;flex-wrap:wrap"><button class="sec" data-a="escf">⚙ Escala de trabalho</button><button class="sec" data-a="tab" data-i="k">Google Agenda</button></div><details class="lg"><summary>Legenda</summary><p class="note">Escala no canto de cada dia (M manhã · N noite · F folga). Domingos em azul; feriados com o número em vermelho. Cores dos prazos: vermelho = prioridade alta, amarelo = média, verde = baixa, azul = sem prioridade, ✓ = concluída (atividades concluídas aparecem no dia em que foram feitas; toque no círculo para marcar ou desmarcar); laranja = dissecção/preparação; roxo = contagem regressiva; amarelo com ‼ = devolução de empréstimo; ‼ = extremamente importante; ↻ = repete (cada dia pode ser marcado ou pulado). Itens cinza com ✓ mostram as etapas feitas naquele dia (peças, habitus, molecular, checklist da espécie nova...). Atividades criadas na agenda usam a cor escolhida. Com a conta Google conectada (menu ⋮ › Google), tudo isso vai sozinho para a agenda “Diário de Pesquisa (app)”; sem ela, o botão + Google abre o Google Agenda com o item já preenchido; eventos trazidos do Google aparecem como “Google Agenda”.</p></details>';
 }
 
 // ===== CONTAGEM REGRESSIVA (aba Contagem) =====

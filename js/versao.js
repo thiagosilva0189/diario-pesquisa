@@ -9,6 +9,10 @@
 //   atividades.js  atividades, subitens e diário de notas (todos os níveis)
 //   grupos.js      aba Grupos: famílias, subgrupos, gêneros e busca
 //   especie.js     espécie: seções, peças, habitus, material-tipo, molecular...
+//   nomenclatura.js atos nomenclaturais, checklist da espécie nova e do gênero
+//                  novo, cartão Novidades taxonômicas do Painel
+//   emprestimos.js material da espécie (próprio/empréstimo) e tela Empréstimos
+//   matrizes.js    tela Matrizes de caracteres (células codificadas)
 //   painel.js      aba Painel: ‼, Hoje, Produção e prazos
 //   agenda.js      abas Agenda e Contagem: calendário, repetições, escala, feriados
 //   relatorio.js   Relatório do período
@@ -94,10 +98,21 @@
 //       Arquivo .ics: repetição vai como um evento só (com a regra).
 // v2.4.1 (27/11) O app.js foi dividido em 11 arquivos na pasta js/ (lista acima),
 //       sem mudar nada no funcionamento.
+// v2.5  (27/11) ATOS NOMENCLATURAIS na espécie e no gênero (sp. nov., gen. nov.,
+//       comb. nov., syn. nov., stat. rev., stat. nov., nom. nov., espécie-tipo,
+//       redescrição; lectótipo/neótipo "designado neste trabalho" no
+//       Material-tipo). CHECKLIST da espécie nova e do gênero novo (itens do
+//       Material-tipo e subitens das atividades marcam sozinhos; LSID do
+//       ZooBank). MATERIAL da espécie em lotes próprios ou de empréstimo (o
+//       antigo "Material disponível" virou material próprio) e tela
+//       EMPRÉSTIMOS (situação, prazo na Agenda e no Google Agenda,
+//       prorrogações, exemplares). Tela MATRIZES DE CARACTERES (uma por
+//       análise; caracteres codificados por terminal). Painel: Novidades
+//       taxonômicas e % das matrizes. Relatório: checklist e empréstimos.
 //
 // Obs.: manifest.webmanifest (v1.1, cores atualizadas na v2.0) não aceita
 // comentários, por isso não tem etiquetas.
 // =====================================================================
 
 // [v1.10] número da versão (aparece em "Sobre o app")
-const VERSAO="2.4.1";   // mude aqui quando atualizar o app
+const VERSAO="2.5";   // mude aqui quando atualizar o app

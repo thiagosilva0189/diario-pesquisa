@@ -2,6 +2,7 @@
 // Diário de Pesquisa — especie.js: ESPÉCIE
 // Formulário e tela da espécie em seções retráteis: material-tipo, distribuição,
 // habitus, dissecção (peças D L I F), morfologia externa e dados moleculares.
+// (Atos nomenclaturais e checklist: nomenclatura.js · material: emprestimos.js)
 // Ordem dos arquivos e histórico de versões: js/versao.js
 // =====================================================================
 
@@ -16,12 +17,14 @@ const MOLA=[["a","Tecido (amostra)"],["e","Extração de DNA"]];
 const MOLST=[["p","P","Amplificação"],["s","S","Sequenciamento"],["l","L","Alinhamento"]];
 const LAB="Sequenciado por mim (laboratório)",GBK="Baixado do GenBank",OUTRO="Outro (digitar abaixo)";
 // [v2.4] seções da espécie, na ordem em que aparecem (cada uma pode ser desligada nas Configurações)
-const SECS=[["ty","Material-tipo"],["di","Distribuição geográfica"],["hb","Imagens de habitus"],["dp","Dissecção e preparação das peças"],["me","Morfologia externa"],["mo","Dados moleculares"],["ta","Atividades da espécie"],["nt","Diário de notas"]];
+// [v2.5] + atos nomenclaturais, checklist da espécie nova e material (as duas primeiras valem também no gênero)
+const SECS=[["at","Atos nomenclaturais (espécie e gênero)"],["nv","Checklist da espécie nova e do gênero novo"],["ty","Material-tipo"],["lo","Material (próprio e de empréstimo)"],["di","Distribuição geográfica"],["hb","Imagens de habitus"],["dp","Dissecção e preparação das peças"],["me","Morfologia externa"],["mo","Dados moleculares"],["ta","Atividades da espécie"],["nt","Diário de notas"]];
 
 // ===== TELA DA ESPÉCIE (seções retráteis) =====
 // [v1.8] chips da espécie: situação e prioridade · resumo da espécie fechada: material e dissecção [v1.2], prazo [v1.5]
+// [v2.5] atos nomenclaturais e material próprio/de empréstimo no lugar do antigo "material disponível"
 const spSt=s=>`<span class="chip ${gc(s.st)}">${esc(s.st)}</span><span class="chip ${pc(s.p)}">Prioridade ${esc((s.p||"").toLowerCase())}</span>`;
-const spChips=s=>`${spSt(s)}${s.ex?`<span class="chip">${esc(s.ex)}</span>`:""}<span class="chip blue">${esc(tpChip(s.tp))}</span>${s.d?`<span class="chip ${s.d<today()?"red":"blue"}">📅 ${fmt(s.d)}</span>`:""}`;
+const spChips=s=>`${spSt(s)}${atChips(s)}${loChips(s)}<span class="chip blue">${esc(tpChip(s.tp))}</span>${s.d?`<span class="chip ${s.d<today()?"red":"blue"}">📅 ${fmt(s.d)}</span>`:""}`;
 // [v1.2] espécie: material, dissecção completa/parcial, peças (D L I F), + Completa ♂/♀ e habitus
 // [v1.5] prazo da preparação · [v1.6] passa a abrir como aba dentro do gênero · [v1.8] situação e prioridade · [v2.1] diário de notas
 // [v2.3] tipo de estudo (dissecção ou só morfologia externa), peças em subitens e seção Morfologia externa
@@ -40,11 +43,15 @@ function accH(s,k,title,sum,body){if(!S.cfg["s"+k])return"";const op=!!(s.op&&s.
 const sumDN=(L,ST)=>{const[d,n]=cntDN(L,ST);return n?d+"/"+n+" feitas":L.length?"nada a fazer":"vazio"};
 const naLeg=()=>S.cfg.na?" · 2º toque: não será realizada":"";
 // [v2.4] espécie: Material-tipo › Distribuição › Habitus › Dissecção › Morfologia externa › Molecular › Atividades › Notas
+// [v2.5] começa com Atos nomenclaturais › Checklist (só sp. nov.); Material (próprio e de empréstimo) depois do Material-tipo
 function vSp(s){
  const isME=s.tp===ME,sug=S.cfg.sug,hp=s.parts.map(p=>p.n),hh=s.hab.map(x=>x.n),hm=s.me.map(x=>x.n),hk=s.mol.ms.map(m=>m.m);
  const fp=S.tpl.parts.filter(n=>!hp.includes(n)),fh=S.tpl.hab.filter(n=>!hh.includes(n)),fm=S.tpl.me.filter(n=>!hm.includes(n)),fk=S.tpl.mk.filter(n=>!hk.includes(n));
- let h=`<div>${spSt(s)}${s.ex?`<span class="chip">Material: ${esc(s.ex)}</span>`:""}<span class="chip blue">${esc(tpChip(s.tp))}</span>${s.d?`<span class="chip ${s.d<today()?"red":"blue"}">📅 ${isME?"Prazo do estudo":"Prazo da preparação"}: ${fmt(s.d)}</span>`:""}</div>${s.nt?`<p class="note">${esc(s.nt)}</p>`:""}${prog(s)}<div class="tools" style="margin-top:10px"><button class="sec" data-a="editSp">Editar / excluir espécie</button></div>`;
+ let h=`<div>${spSt(s)}${atChips(s)}${loChips(s,1)}<span class="chip blue">${esc(tpChip(s.tp))}</span>${s.d?`<span class="chip ${s.d<today()?"red":"blue"}">📅 ${isME?"Prazo do estudo":"Prazo da preparação"}: ${fmt(s.d)}</span>`:""}${mxChips(s)}</div>${s.nt?`<p class="note">${esc(s.nt)}</p>`:""}${prog(s)}<div class="tools" style="margin-top:10px"><button class="sec" data-a="editSp">Editar / excluir espécie</button></div>`;
+ h+=accH(s,"at","Atos nomenclaturais",atSum(s),()=>atH(s));
+ if(atHas(s,"spn"))h+=accH(s,"nv","Checklist da espécie nova",nvSum(s),()=>nvH(s));
  h+=accH(s,"ty","Material-tipo",tySum(s),()=>tyH(s));
+ h+=accH(s,"lo","Material",loSum(s),()=>loH(s));   // próprio e de empréstimo (o resumo mostra os dois)
  h+=accH(s,"di","Distribuição geográfica",esc(areas(s.dist).join("; "))||"não informada",()=>distH(s));
  h+=accH(s,"hb","Imagens de habitus",sumDN(s.hab,[["x"]]),()=>habH(s,fh,sug));
  if(!isME||s.parts.length)h+=accH(s,"dp","Dissecção e preparação das peças",sumDN(s.parts,STEPS),()=>dpH(s,fp,sug,isME));   // [v2.3] escondida na espécie só de morfologia externa
@@ -80,6 +87,8 @@ function tySum(s){const t=s.ty;if(!t.pr)return t.lt?"localidade-tipo: "+esc(t.lt
 const tyDesc=r=>[r.n&&r.n!=="1"?r.n+" ex.":"",r.sx&&r.sx!==SEXO[0]?r.sx:"",r.dep].filter(Boolean).join(" · ");
 function tyH(s){const t=s.ty,sec=TYS[t.pr],cols=`grid-template-columns:1fr repeat(${TYST.length},38px) 36px`;
  let h=`<label class="kl">Tipo primário<select data-c="typr" data-s="${s.id}"><option value=""${t.pr?"":" selected"}>Não informado / não localizado</option>${TYP.map(x=>`<option${x===t.pr?" selected":""}>${x}</option>`).join("")}</select></label>`;
+ // [v2.5] lectótipo/neótipo designado neste trabalho: entra nos atos nomenclaturais
+ if(t.pr==="Lectótipo"||t.pr==="Neótipo")h+=`<label class="tyz"><input type="checkbox" data-a="tydz" data-i="${s.id}"${t.dz?" checked":""}><span>Designado neste trabalho (entra nos atos nomenclaturais)</span></label>`;
  if(t.pr){
   h+=`<div class="card"><div class="pg note" style="${cols}"><span></span>${TYST.map(x=>`<span style="text-align:center">${x[1]}</span>`).join("")}<span></span></div>`
   +t.L.map((r,i)=>`<div class="pg" style="${cols}"><button class="tyl" data-a="tye" data-i="${i}"><b>${esc(tyK(s,r))}</b><small>${esc(tyDesc(r))||"toque para informar quantidade, sexo e depositário"}</small></button>${TYST.map(x=>tcB("tyc",i,x[0],r[x[0]],x[2])).join("")}<button class="ic" data-a="tyd" data-i="${i}">✕</button></div>`).join("")
@@ -123,7 +132,8 @@ const prepPend=s=>!(s.parts.length+s.hab.length+(s.me||[]).length)||s.parts.some
 const prepName=s=>s.tp===ME?"Estudo da morfologia externa":"Dissecção e preparação das peças";
 // [v1.2] campos da espécie (nome, material, dissecção, notas) · [v1.5] prazo · [v1.8] situação e prioridade · [v2.1] autor, ano e combinação
 // [v2.3] caixinha "espécie sem nome" e "Tipo de estudo" (dissecção completa/parcial ou só morfologia externa)
-const sForm=[{k:"n",l:"Nome da espécie (só o epíteto, ex.: punctatus; sem nome: sp. 1, sp. nov. A)"},{k:"un",l:"Espécie ainda sem nome (sp., sp. nov., morfoespécie): o nome não fica em itálico",t:"chk"},{k:"au",l:"Autor (opcional)"},{k:"an",l:"Ano (opcional)"},{k:"cb",l:"Combinação",t:"sel",o:CBO},{k:"ex",l:"Material disponível (ex.: 3 ♂, 2 ♀)"},{k:"tp",l:"Tipo de estudo",t:"sel",o:TPO.map(x=>x[1])},{k:"d",l:"Prazo da preparação ou do estudo",t:"date"},{k:"st",l:"Situação",t:"sel",o:GST},{k:"p",l:"Prioridade",t:"sel",o:PRIO},{k:"nt",l:"Notas",t:"area"}];
+// [v2.5] sem o campo "Material disponível": o material fica na seção Material (próprio e de empréstimo)
+const sForm=[{k:"n",l:"Nome da espécie (só o epíteto, ex.: punctatus; sem nome: sp. 1, sp. nov. A)"},{k:"un",l:"Espécie ainda sem nome (sp., sp. nov., morfoespécie): o nome não fica em itálico",t:"chk"},{k:"au",l:"Autor (opcional)"},{k:"an",l:"Ano (opcional)"},{k:"cb",l:"Combinação",t:"sel",o:CBO},{k:"tp",l:"Tipo de estudo",t:"sel",o:TPO.map(x=>x[1])},{k:"d",l:"Prazo da preparação ou do estudo",t:"date"},{k:"st",l:"Situação",t:"sel",o:GST},{k:"p",l:"Prioridade",t:"sel",o:PRIO},{k:"nt",l:"Notas",t:"area"}];
 
 // [v2.4] tipo primário do material-tipo (lista de escolha)
 document.addEventListener("change",e=>{const el=e.target,c=el.dataset&&el.dataset.c;
@@ -142,8 +152,8 @@ Object.assign(A,{
  os(el){const g=gen(V.f,V.g),s=g.spp.find(x=>x.id===el.dataset.i);if(s.o)s.o=0;else{g.spp.forEach(x=>x.o=0);s.o=1}saveUI();render()},
  // [v1.2] criar e editar espécie · [v1.8] situação e prioridade · [v2.1] autor, ano, combinação e confirmação ao excluir
  // [v2.3] espécie sem nome (un), tipo de estudo vindo do gênero e estruturas de morfologia externa (me)
- addSp(){const g=gen(V.f,V.g);form("Nova espécie",sForm,{tp:tpL(g.est||TPO[0][0]),st:GST[0],p:PRIO[1],cb:CBO[0]},v=>{if(!v.n)return;g.spp.push({id:uid(),n:v.n,un:v.un||SPUN.test(v.n)?1:0,au:v.au,an:v.an,cn:v.cb===CBO[1]?1:0,ex:v.ex,tp:tpV(v.tp),d:v.d,st:v.st,p:v.p,nt:v.nt,parts:[],hab:[],me:[],tasks:[],nts:[]});done()})},
- editSp(){const g=gen(V.f,V.g),s=own();form("Editar espécie",sForm,{n:s.n,un:s.un?"1":"",au:s.au,an:s.an,cb:s.cn?CBO[1]:CBO[0],ex:s.ex,tp:tpL(s.tp),d:s.d,st:s.st,p:s.p,nt:s.nt},v=>{if(!v.n)return;Object.assign(s,{n:v.n,un:v.un||SPUN.test(v.n)?1:0,au:v.au,an:v.an,cn:v.cb===CBO[1]?1:0,ex:v.ex,tp:tpV(v.tp),d:v.d,st:v.st,p:v.p,nt:v.nt});done()},()=>conf("Excluir a espécie "+s.n+" e todo o seu progresso?","Excluir",()=>rm("Espécie excluída",()=>{g.spp=g.spp.filter(x=>x!==s);V.s=null})))},
+ addSp(){const g=gen(V.f,V.g);form("Nova espécie",sForm,{tp:tpL(g.est||TPO[0][0]),st:GST[0],p:PRIO[1],cb:CBO[0]},v=>{if(!v.n)return;g.spp.push({id:uid(),n:v.n,un:v.un||SPUN.test(v.n)?1:0,au:v.au,an:v.an,cn:v.cb===CBO[1]?1:0,tp:tpV(v.tp),d:v.d,st:v.st,p:v.p,nt:v.nt,parts:[],hab:[],me:[],tasks:[],nts:[]});done()})},
+ editSp(){const g=gen(V.f,V.g),s=own();form("Editar espécie",sForm,{n:s.n,un:s.un?"1":"",au:s.au,an:s.an,cb:s.cn?CBO[1]:CBO[0],tp:tpL(s.tp),d:s.d,st:s.st,p:s.p,nt:s.nt},v=>{if(!v.n)return;Object.assign(s,{n:v.n,un:v.un||SPUN.test(v.n)?1:0,au:v.au,an:v.an,cn:v.cb===CBO[1]?1:0,tp:tpV(v.tp),d:v.d,st:v.st,p:v.p,nt:v.nt});done()},()=>conf("Excluir a espécie "+s.n+" e todo o seu progresso?","Excluir",()=>rm("Espécie excluída",()=>{g.spp=g.spp.filter(x=>x!==s);V.s=null})))},
  // [v1.2] peças (marcar etapa, remover, adicionar, dissecção completa ♂/♀) e habitus
  pt(el){const[i,k]=el.dataset.i.split("|"),p=own().parts[+i];p[k]=nxt(p[k]);save();render()},   // [v2.1] guarda a data em vez de 1 · [v2.4] 3 estados
  dp(el){const o=own(),i=+el.dataset.i;rm("Peça removida",()=>{o.parts.splice(i,1)})},
@@ -157,8 +167,8 @@ Object.assign(A,{
  hb(el){const h=own().hab[+el.dataset.i.split("|")[0]];h.x=nxt(h.x);save();render()},
  dh(el){const o=own(),i=+el.dataset.i;rm("Posição de habitus removida",()=>{o.hab.splice(i,1)})},
  ah(el){own().hab.push({n:el.dataset.i,x:0});save();render()},
- // [v2.4] seções retráteis da espécie
- sec(el){const[id,k]=el.dataset.i.split("|"),s=spc(V.f,V.g,id);if(!s)return;s.op=s.op||{};s.op[k]=s.op[k]?0:1;saveUI();render()},
+ // [v2.4] seções retráteis da espécie · [v2.5] e do gênero (atos e checklist do gênero novo)
+ sec(el){const[id,k]=el.dataset.i.split("|"),s=spc(V.f,V.g,id)||(V.g===id?gen(V.f,V.g):null);if(!s)return;s.op=s.op||{};s.op[k]=s.op[k]?0:1;saveUI();render()},
  // [v2.4] material-tipo: editar linha, nova linha, etapa (3 estados), excluir, localidade-tipo e observações
  tye(el){const s=own(),r=s.ty.L[+el.dataset.i];if(r)tyForm(s,r)},
  tya(el){tyForm(own(),{id:uid(),r:el.dataset.i,n:"",sx:SEXO[0],dep:""},1)},

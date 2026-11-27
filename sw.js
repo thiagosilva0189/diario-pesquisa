@@ -4,13 +4,15 @@
 //
 // [v1.1] arquivo criado quando o app ficou independente (instalável e offline).
 // O nome do CACHE ganha +1 a cada atualização entregue, para o celular trocar a
-// cópia antiga pela nova: diario-v15 corresponde à versão 2.4.1 do app.
+// cópia antiga pela nova: diario-v16 corresponde à versão 2.5 do app.
 // (Histórico completo de versões: js/versao.js.)
-const CACHE = "diario-v15";   // v15: versão 2.4.1 (app.js dividido em arquivos na pasta js/)
+const CACHE = "diario-v16";   // v16: versão 2.5 (atos nomenclaturais, checklist, empréstimos e matrizes)
 // [v2.4.1] o app.js virou os arquivos da pasta js/ (se criar ou renomear um, acrescente aqui)
+// [v2.5] + nomenclatura.js, emprestimos.js e matrizes.js
 const ARQUIVOS = [
   "./", "index.html", "style.css",
-  "js/versao.js", "js/dados.js", "js/atividades.js", "js/grupos.js", "js/especie.js", "js/painel.js",
+  "js/versao.js", "js/dados.js", "js/atividades.js", "js/grupos.js", "js/especie.js",
+  "js/nomenclatura.js", "js/emprestimos.js", "js/matrizes.js", "js/painel.js",
   "js/agenda.js", "js/relatorio.js", "js/google.js", "js/menu.js", "js/inicio.js",
   "manifest.webmanifest", "icon-192.png", "icon-512.png"
 ];

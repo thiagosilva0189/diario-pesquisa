@@ -13,11 +13,13 @@ const gForm=f=>[{k:"n",l:"Nome do gênero"},{k:"un",l:"Gênero ainda sem nome (g
 // [v1.8] botões + Espécie / Editar gênero antes da lista · [v1.10] "Gênero" automático e espécie abreviada
 // [v2.1] autor e ano, chip do agrupamento, botão Ordenar e diário de notas
 // [v2.3] chip do tipo de estudo do gênero; espécie sem nome fora do itálico (spH) · [v2.4] distribuição do gênero
+// [v2.5] atos nomenclaturais do gênero e checklist do gênero novo (seções retráteis antes das espécies)
 function vGen(){
  const F=fam(V.f),g=gen(V.f,V.g);if(!g){V.g=null;return vGroups()}
  const x=grById(F,g.gr);
- let h=`<h2>${gl(g)}${authH(g)}</h2><div>${x?`<span class="chip">${esc(grl(x))}</span>`:""}<span class="chip ${gc(g.st)}">${esc(g.st)}</span><span class="chip ${pc(g.p)}">Prioridade ${esc(g.p.toLowerCase())}</span>${g.est&&g.est!==TPO[0][0]?`<span class="chip blue">${esc(tpChip(g.est))}</span>`:""}${g.sp?`<span class="chip">${esc(g.sp)} spp. (estimado)</span>`:""}</div>${gDist(g).length?`<div class="gdist"><small>Distribuição</small>${distChips(gDist(g))}</div>`:""}${g.nt?`<p class="note">${esc(g.nt)}</p>`:""}${prog(g)}`;
+ let h=`<h2>${gl(g)}${authH(g)}</h2><div>${x?`<span class="chip">${esc(grl(x))}</span>`:""}<span class="chip ${gc(g.st)}">${esc(g.st)}</span><span class="chip ${pc(g.p)}">Prioridade ${esc(g.p.toLowerCase())}</span>${atChips(g)}${g.est&&g.est!==TPO[0][0]?`<span class="chip blue">${esc(tpChip(g.est))}</span>`:""}${g.sp?`<span class="chip">${esc(g.sp)} spp. (estimado)</span>`:""}</div>${gDist(g).length?`<div class="gdist"><small>Distribuição</small>${distChips(gDist(g))}</div>`:""}${g.nt?`<p class="note">${esc(g.nt)}</p>`:""}${prog(g)}`;
  h+=`<div class="tools"><button class="sec" data-a="addSp">+ Espécie</button><button class="sec" data-a="editGen">Editar gênero</button></div>`;
+ h+=accH(g,"at","Atos nomenclaturais do gênero",atSum(g),()=>atH(g))+(atHas(g,"gnn")?accH(g,"nv","Checklist do gênero novo",nvSum(g),()=>nvH(g)):"");   // [v2.5]
  h+=`<div class="r" style="justify-content:space-between"><div class="grp">Espécies (${g.spp.length})</div>${g.spp.length>1?`<button class="lnk" data-a="ordG">Ordenar</button>`:""}${g.spp.length?`<button class="lnk" data-a="tgs">${g.spp.some(s=>s.o)?"Fechar todas":"Abrir todas"}</button>`:""}</div>`+(g.spp.map(s=>`<section class="card"><div class="fh" data-a="os" data-i="${s.id}"><b>${spH(g,s)}${authH(s)}</b><span>${s.o?"▾":"▸"}</span></div>${s.o?`<div class="spb" data-sp="${s.id}">${vSp(s)}</div>`:`<div class="gen" style="border-top:0;padding-top:0" data-a="os" data-i="${s.id}">${spChips(s)}${prog(s)}</div>`}</section>`).join("")||'<div class="empty">Nenhuma espécie ainda. Toque no + para adicionar.</div>');
  return h+`<div class="grp">Atividades do gênero</div>`+tasksH(g)+notesH(g);
 }
@@ -61,10 +63,10 @@ const grId=(f,l)=>{const x=f.grp.find(y=>grPath(f,y)===l);return x?x.id:""};
 const grForm=(f,x)=>{const ex=x?grDesc(f,x):[];return[{k:"n",l:"Nome"},{k:"r",l:"Categoria",t:"sel",o:RANKS},{k:"pa",l:"Dentro de",t:"sel",o:[NOPA].concat(grAll(f).filter(y=>!ex.includes(y.id)).map(y=>grPath(f,y)))},{k:"nt",l:"Notas",t:"area"}]};
 
 // ===== LISTA DE FAMÍLIAS (aba Grupos) =====
-// [v1.0] linha do gênero na família · [v1.6] nº de espécies no app · [v1.7] nº à direita e bandeja separada · [v2.1] autor e ano
-const genRow=(f,g)=>`<div class="gen" data-a="og" data-i="${f.id}|${g.id}"><div class="r"><b class="g1">${gl(g)}${authH(g)}</b><small>${pl(g.spp.length,"espécie","espécies")}</small></div><div><span class="chip ${gc(g.st)}">${esc(g.st)}</span><span class="chip ${pc(g.p)}">Prioridade ${esc(g.p.toLowerCase())}</span>${g.est===ME?`<span class="chip blue">${ME}</span>`:""}${g.sp?`<span class="chip">${esc(g.sp)} spp.</span>`:""}</div>${prog(g)}</div>`;
+// [v1.0] linha do gênero na família · [v1.6] nº de espécies no app · [v1.7] nº à direita e bandeja separada · [v2.1] autor e ano · [v2.5] atos
+const genRow=(f,g)=>`<div class="gen" data-a="og" data-i="${f.id}|${g.id}"><div class="r"><b class="g1">${gl(g)}${authH(g)}</b><small>${pl(g.spp.length,"espécie","espécies")}</small></div><div><span class="chip ${gc(g.st)}">${esc(g.st)}</span><span class="chip ${pc(g.p)}">Prioridade ${esc(g.p.toLowerCase())}</span>${atChips(g)}${g.est===ME?`<span class="chip blue">${ME}</span>`:""}${g.sp?`<span class="chip">${esc(g.sp)} spp.</span>`:""}</div>${prog(g)}</div>`;
 // [v2.1] texto de um item para a busca (nome, autor, notas, atividades, subitens e diário)
-const txt=o=>[o.n,o.au,o.an,o.nt,o.dist,o.ty&&o.ty.lt].concat((o.tasks||[]).map(t=>[t.t,t.nt].concat(t.b.map(b=>b.t)).join(" ")),(o.nts||[]).map(n=>n.tx),((o.mol||{}).ms||[]).map(m=>m.m+" "+(m.acc||""))).join(" ");   // [v2.4] + distribuição, localidade-tipo, marcadores
+const txt=o=>[o.n,o.au,o.an,o.nt,o.dist,o.ty&&o.ty.lt].concat((o.tasks||[]).map(t=>[t.t,t.nt].concat(t.b.map(b=>b.t)).join(" ")),(o.nts||[]).map(n=>n.tx),((o.mol||{}).ms||[]).map(m=>m.m+" "+(m.acc||"")),(o.at||[]).map(a=>(ATD[a.c]?ATD[a.c].l:"")+" "+(a.x||"")),(o.lo||[]).map(l=>(l.nt||"")+(l.o==="e"?" "+empNome(empById(l.e)):""))).join(" ");   // [v2.4] + distribuição, localidade-tipo, marcadores · [v2.5] + atos e material
 // [v1.3] bloco do subgrupo com seus gêneros e botão Atividades · [v2.1] subgrupos de dentro · [v2.4] a faixa abre a tela do subgrupo (✎ edita)
 function secH(f,x,gs,q,dep){ // um subgrupo, seus gêneros e os subgrupos de dentro
  const ids=grDesc(f,x),m=gs.filter(g=>g.gr===x.id),tot=f.g.filter(g=>ids.includes(g.gr)).length,inner=grKids(f,x.id).map(y=>secH(f,y,gs,q,dep+1)).join("");
