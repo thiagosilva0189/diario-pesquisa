@@ -4,7 +4,18 @@
    bandejas (unit trays), espécies com alfinete, verde-élitro e âmbar.
    ===================================================================== */
 
+/* ---------------------------------------------------------------------
+   HISTÓRICO DESTE ARQUIVO (o histórico completo está no topo do app.js)
+   [v1.1]  style.css passa a existir como arquivo separado (visual simples).
+   [v2.0]  Arquivo reescrito: novo visual "gaveta entomológica".
+           As seções abaixo trazem a versão em que a FUNÇÃO apareceu no app
+           e, quando for o caso, "visual v2.0" (o desenho atual veio na 2.0).
+   [v2.1]  Tema escuro escolhido no menu e partes novas (fim do arquivo).
+   [v2.2]  Tela Google Agenda (fim do arquivo).
+   --------------------------------------------------------------------- */
+
 /* ---------- 1. Paleta (modo claro) ---------- */
+/* [v2.0] cores, fontes e ícones desenhados (besouro, alfinete, lupa, seta) */
 :root{
  --bg:#f2eee3;--grid:rgba(36,87,63,.05);--grid2:rgba(36,87,63,.085);
  --card:#fffdf8;--card2:#f7f3e8;--ink:#1c2620;--mut:#69716a;--line:#e5dece;--line2:#d4cbb5;
@@ -24,6 +35,7 @@
  color-scheme:light}
 
 /* ---------- 1b. Paleta (modo escuro: gaveta à noite) ---------- */
+/* [v2.0] modo escuro automático, quando o celular está no modo escuro */
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
  --bg:#0e1410;--grid:rgba(140,200,160,.03);--grid2:rgba(140,200,160,.055);
  --card:#172019;--card2:#1c261f;--ink:#e8ebe2;--mut:#99a396;--line:#27332a;--line2:#344238;
@@ -49,6 +61,7 @@
  color-scheme:dark}
 
 /* ---------- 2. Base ---------- */
+/* [v2.0] fundo de papel milimetrado */
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 [hidden]{display:none!important}
 html,body{height:100%;margin:0;overflow:hidden;overscroll-behavior:none}
@@ -60,6 +73,7 @@ body{background-color:var(--bg);
 ::selection{background:var(--ambb)}
 
 /* ---------- 3. Barra superior (tampa da gaveta) ---------- */
+/* [v2.0] barra com logo de besouro, título, seta de voltar e menu ⋮ */
 #bar{position:relative;display:flex;align-items:center;gap:4px;
  background:radial-gradient(90% 140% at 100% 100%,rgba(120,215,175,.20),transparent 60%),linear-gradient(180deg,var(--top1),var(--top2));
  color:var(--ontop);padding:calc(6px + env(safe-area-inset-top,0px)) 4px 6px 6px;min-height:62px;z-index:5;-webkit-user-select:none;user-select:none;
@@ -75,12 +89,14 @@ body{background-color:var(--bg);
 #bk:active,#mn:active{background:rgba(255,255,255,.16)}
 
 /* ---------- 4. Área rolável e animações de troca de tela ---------- */
+/* [v2.0] animação da tela entrando pela direita/esquerda ao trocar de aba */
 #app{flex:1;overflow-y:auto;overscroll-behavior-y:contain;width:100%;max-width:760px;margin:0 auto;padding:16px 14px 112px;touch-action:pan-y}
 .in-r{animation:inr .3s cubic-bezier(.2,.8,.2,1)}.in-l{animation:inl .3s cubic-bezier(.2,.8,.2,1)}
 @keyframes inr{from{opacity:0;transform:translateX(44px)}}
 @keyframes inl{from{opacity:0;transform:translateX(-44px)}}
 
 /* ---------- 5. Barra de navegação inferior ---------- */
+/* [v2.0] abas embaixo com ícones (Grupos e Painel desde a v1.0, Contagem v1.4, Agenda v1.8) */
 #tabs{display:flex;background:var(--nav);border-top:1px solid var(--line);padding:8px 4px calc(8px + env(safe-area-inset-bottom,0px));z-index:5;-webkit-user-select:none;user-select:none;box-shadow:0 -2px 14px rgba(40,35,20,.05)}
 #tabs button{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;border:0;background:none;color:var(--mut);font:600 12px/1.2 var(--sans);letter-spacing:.01em;padding:0}
 #tabs .ti{display:grid;place-items:center;width:60px;height:32px;border-radius:99px;transition:background .25s,color .25s}
@@ -92,6 +108,7 @@ body{background-color:var(--bg);
 #tabs button:active svg{transform:scale(.88)}
 
 /* ---------- 6. Botão flutuante (âmbar) ---------- */
+/* [v2.0] botão + flutuante */
 #fab{position:fixed;right:16px;bottom:calc(88px + env(safe-area-inset-bottom,0px));width:60px;height:60px;border-radius:18px;border:0;padding:0;display:grid;place-items:center;
  background:linear-gradient(150deg,#ecc06a,#b5791d);color:var(--onamb);z-index:6;transition:transform .15s;
  box-shadow:0 6px 16px rgba(120,80,10,.32),0 2px 4px rgba(0,0,0,.18),inset 0 1px 0 rgba(255,255,255,.4)}
@@ -99,6 +116,7 @@ body{background-color:var(--bg);
 #fab:active{transform:scale(.92)}
 
 /* ---------- 7. Texto e botões ---------- */
+/* [v2.0] títulos com serifa, botões arredondados e campos de formulário */
 h2{font:600 26px/1.2 var(--serif);margin:4px 0 8px;letter-spacing:.005em}
 h3{font:600 21px/1.25 var(--serif);margin:0 0 16px}
 button{font:inherit;color:var(--ink);cursor:pointer;touch-action:manipulation}
@@ -123,17 +141,20 @@ input[type=search]{-webkit-appearance:none;appearance:none;border-radius:99px;pa
 input[type=search]:focus{box-shadow:0 0 0 3px var(--accb)}
 input[type=search]::placeholder{font-size:15px}
 textarea{min-height:84px;resize:vertical}
+/* [v1.1] campos de texto do Backup (visual v2.0) */
 #bkp,#imp{font:12px/1.45 var(--mono)}
 
 /* ---------- 8. Cartões (gavetas) e listas ---------- */
 .card{background:var(--card);border:1px solid var(--line);border-radius:18px;margin-bottom:12px;overflow:hidden;box-shadow:var(--sh)}
 .fh,.gen,.sub,.cl,.seg,#tabs,.chip,.st,summary{-webkit-user-select:none;user-select:none}
+/* [v1.6] cabeçalho que abre e fecha (família e espécie) · visual v2.0 */
 .fh{display:flex;align-items:center;gap:12px;padding:12px 14px;min-height:62px;cursor:pointer;transition:background .15s}
 .fh:active{background:var(--card2)}
 .fh b{flex:1;font-size:17px;min-width:0}
 .fh>span:last-child{flex:none;width:30px;height:30px;border-radius:50%;display:grid;place-items:center;background:var(--accb);color:var(--acc);font-size:12px}
 
 /* família = gaveta: ícone de besouro, nome como etiqueta de gaveta, contagem embaixo */
+/* [v2.0] família como gaveta · [v1.6] contagem de gêneros e espécies embaixo do nome · [v2.1] ícone da ordem (.ordic) */
 .fh[data-a="tf"]{display:grid;grid-template-columns:auto 1fr auto;column-gap:12px;row-gap:1px}
 .fh[data-a="tf"] .ordic{grid-row:1/3}
 .fh[data-a="tf"] b{grid-column:2;grid-row:1;align-self:end;font:700 15.5px/1.2 var(--serif);text-transform:uppercase;letter-spacing:.09em;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -141,6 +162,7 @@ textarea{min-height:84px;resize:vertical}
 .fh[data-a="tf"]>span:last-child{grid-column:3;grid-row:1/3}
 
 /* espécie = exemplar alfinetado */
+/* [v1.6] espécie em aba · [v2.0] ícone de alfinete */
 .fh[data-a="os"]::before{content:"";flex:none;width:36px;height:36px;border-radius:11px;background:var(--ambb) var(--i-pin) center/22px no-repeat}
 .fh[data-a="os"] b{font:600 18px/1.2 var(--serif)}
 
@@ -148,6 +170,7 @@ textarea{min-height:84px;resize:vertical}
 .gen{padding:12px 16px;border-top:1px solid var(--line);cursor:pointer;transition:background .15s}
 .gen:active{background:var(--accb)}
 /* gênero dentro da família = bandeja (unit tray), com a cor da situação na lateral */
+/* [v1.7] divisão mais visível entre gêneros e nº de espécies à direita · [v2.0] bandeja com cor da situação */
 .fam .gen[data-a="og"]{margin:0 10px 10px;padding:11px 14px 10px;border:1px solid var(--line2);border-left:5px solid var(--acc);border-radius:12px;background:var(--card2)}
 .fam .gen[data-a="og"]:has(.chip:first-child.gray){border-left-color:var(--gray)}
 .fam .gen[data-a="og"]:has(.chip:first-child.purple){border-left-color:var(--purple)}
@@ -159,6 +182,7 @@ textarea{min-height:84px;resize:vertical}
 .fam .gen[data-a="og"]:active{background:var(--accb)}
 .acts+.gen[data-a="og"],.acts.note+.gen[data-a="og"]{margin-top:10px}
 /* subfamília / tribo dentro da família */
+/* [v1.3] faixa do subgrupo (subfamília, tribo...) · visual v2.0 */
 .sub{display:flex;align-items:center;gap:8px;padding:9px 14px;margin:6px 0 10px;background:var(--accb);border-top:1px solid var(--line);border-bottom:1px solid var(--line);cursor:pointer;flex-wrap:wrap}
 .sub b{flex:1;font:600 15.5px/1.2 var(--serif)}
 .sub .chip{margin:0}
@@ -168,12 +192,14 @@ textarea{min-height:84px;resize:vertical}
 .card.gen:active{background:var(--card2)}
 .card.gen>b{font-size:15.5px}
 .card.gen>small{display:block;margin-top:6px;font-size:12.5px}
+/* [v1.3] cartão "Atividades gerais" com faixa âmbar (visual v2.0) */
 .tools+.card.gen[data-i="*"]{border-left:5px solid var(--amb)}
 .tools+.card.gen[data-i="*"]>b{font:600 18px/1.2 var(--serif)}
 .r{display:flex;align-items:center;gap:8px}
 .g1{flex:1;min-width:0}
 
 /* etiquetas (chips) */
+/* [v1.0] etiquetas · [v1.2] botões tracejados de 1 clique (modelos, peças, habitus) · visual v2.0 */
 .chip{display:inline-flex;align-items:center;gap:3px;font-size:12px;font-weight:600;line-height:1.3;padding:3px 9px;border-radius:7px;background:var(--accb);color:var(--acc);margin:5px 6px 0 0;vertical-align:middle;letter-spacing:.01em;white-space:nowrap}
 .chip.red{background:var(--redb);color:var(--red)}.chip.blue{background:var(--bluebg);color:var(--blue)}
 button.chip{border:1px solid var(--line2);background:var(--card);color:var(--ink);font:inherit;font-size:13px;font-weight:500;padding:6px 11px;margin:4px 6px 4px 0;border-radius:9px;white-space:normal;text-align:left}
@@ -182,22 +208,26 @@ button.chip.blue,button.chip.red{border-color:transparent}
 button.chip[data-a="tq"],button.chip[data-a="ap"],button.chip[data-a="ah"]{border-style:dashed;background:transparent;color:var(--acc);font-weight:600}
 
 /* progresso = barra de escala de ilustração científica (10 segmentos) */
+/* [v1.0] barra de progresso · [v2.0] desenhada como escala de ilustração */
 .bar{position:relative;height:8px;background:var(--line);border-radius:3px;margin:10px 0 4px;overflow:hidden}
 .bar span{display:block;height:100%;background:linear-gradient(90deg,var(--acc),var(--acc2));border-radius:3px 0 0 3px}
 .bar::after{content:"";position:absolute;inset:0;background:repeating-linear-gradient(90deg,transparent 0,transparent calc(10% - 2px),var(--card) calc(10% - 2px),var(--card) 10%)}
 .bar+small{font:11.5px/1.3 var(--mono);letter-spacing:.02em}
 .fam .gen[data-a="og"] .bar::after{background:repeating-linear-gradient(90deg,transparent 0,transparent calc(10% - 2px),var(--card2) calc(10% - 2px),var(--card2) 10%)}
 
+/* [v1.7] linha de botões da família, antes da lista de gêneros (visual v2.0) */
 .acts{display:flex;gap:8px;padding:10px 14px;border-top:1px solid var(--line);flex-wrap:wrap;align-items:center}
 .acts.note{font-style:italic;font-size:14.5px}
 
 /* ---------- 9. Atividades ---------- */
+/* [v1.0] cartão de atividade, botão de situação e subatividades · visual v2.0 */
 .task{background:var(--card);border:1px solid var(--line);border-left:5px solid var(--line2);border-radius:16px;padding:12px 12px 10px;margin-bottom:10px;box-shadow:var(--sh)}
 .task.s2{opacity:.72}
 .task .g1>b{font-size:15.5px;line-height:1.3}
 .st{width:40px;height:40px;border-radius:50%;border:1.5px solid var(--line2);background:var(--card2);font-size:18px;flex:none;display:grid;place-items:center;padding:0;transition:transform .12s}
 .st:active{transform:scale(.88)}
 /* ícone da situação desenhado em CSS (○ a fazer · ◐ em execução · ✓ concluída) */
+/* [v2.0] */
 .st{font-size:0;color:var(--gray)}
 .st::before{content:"";box-sizing:border-box;width:18px;height:18px;border:2px solid currentColor;border-radius:50%}
 .st.k1::before{background:linear-gradient(90deg,currentColor 50%,transparent 50%)}
@@ -214,21 +244,26 @@ li label{display:flex;gap:10px;align-items:center;padding:6px 0;flex:1;min-width
 .addsub:focus{border-style:solid;background:var(--card)}
 
 /* títulos de seção = rótulo de coleção */
+/* [v2.0] */
 .grp{display:flex;align-items:center;gap:10px;font:700 11.5px/1.2 var(--sans);text-transform:uppercase;letter-spacing:.13em;color:var(--ambt);margin:24px 2px 10px}
 .grp::after{content:"";flex:1;min-width:12px;height:1px;background:linear-gradient(90deg,var(--line2),transparent)}
 .r>.grp{flex:1}
 /* listas simples (habitus e modelos) como linhas de lista */
+/* [v1.2] listas de habitus e de modelos · visual v2.0 */
 .r:has(>[data-a="tdel"]),.r:has(>[data-a="dh"]){min-height:44px;border-bottom:1px dashed var(--line);padding-left:4px}
+/* [v2.0] aviso de lista vazia com besouro */
 .empty{color:var(--mut);padding:26px 20px 22px;text-align:center;font-size:15px}
 .empty::before{content:"";display:block;width:60px;height:60px;margin:0 auto 12px;background:var(--mut);opacity:.5;-webkit-mask:var(--i-beetle) center/contain no-repeat;mask:var(--i-beetle) center/contain no-repeat}
 
 /* tabela de peças dissecadas */
+/* [v1.2] tabela de peças com colunas D L I F · visual v2.0 */
 .pg{display:grid;grid-template-columns:1fr repeat(4,38px) 36px;align-items:center;padding:4px 4px 4px 14px;border-bottom:1px solid var(--line);font-size:15px;min-height:44px}
 .pg:nth-child(odd):not(.note){background:var(--card2)}
 .pg.note{font:700 12px var(--mono);color:var(--ambt);background:var(--ambb);min-height:34px;letter-spacing:.04em}
 .pg input{width:22px;height:22px;justify-self:center}
 
 /* ---------- 10. Janela de formulário (bottom sheet) ---------- */
+/* [v1.0] janela de formulário · [v2.0] passa a subir de baixo (bottom sheet) */
 #modal{display:none;position:fixed;inset:0;background:rgba(8,18,12,.5);z-index:20;align-items:flex-end;justify-content:center}
 #modal.on{display:flex;animation:fade .2s ease-out}
 @keyframes fade{from{background:rgba(8,18,12,0)}}
@@ -242,10 +277,12 @@ li label{display:flex;gap:10px;align-items:center;padding:6px 0;flex:1;min-width
 @media (min-width:640px){#modal{align-items:center}.sheet{border-radius:28px;max-height:88%}}
 
 /* aviso rápido (snackbar) */
+/* [v2.0] visual do aviso · [v2.1] botão DESFAZER dentro dele */
 #toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(96px + env(safe-area-inset-bottom,0px));background:#1f2a23;color:#f2efe4;padding:12px 18px;border-radius:12px;font-size:14px;display:none;align-items:center;gap:14px;z-index:30;box-shadow:var(--sh2);width:max-content;max-width:calc(100% - 32px);animation:pop .2s ease-out}
 #toast button{flex:none;border:0;background:none;color:#ecc06a;font-weight:700;font-size:13.5px;letter-spacing:.05em;text-transform:uppercase;padding:6px 4px;margin:-6px -4px -6px auto}
 
 /* menu ⋮ */
+/* [v2.0] visual do menu ⋮ (itens: Modelos v1.2, Backup v1.1, Sobre v1.10, Relatório/Organizar/Tema v2.1, Google v2.2) */
 #scrim{position:fixed;inset:0;z-index:11}
 #menu{position:fixed;top:calc(58px + env(safe-area-inset-top,0px));right:8px;min-width:292px;background:var(--card);border:1px solid var(--line);border-radius:18px;box-shadow:var(--sh2);overflow:hidden;z-index:12;padding:6px 0;transform-origin:top right;animation:pop .16s ease-out}
 #menu button{display:flex;align-items:center;gap:14px;width:100%;text-align:left;border:0;background:none;padding:13px 18px;font-size:15.5px}
@@ -256,6 +293,7 @@ li label{display:flex;gap:10px;align-items:center;padding:6px 0;flex:1;min-width
 
 /* ---------- 11. Cores de situação e prioridade ----------
    (A fazer cinza · Em execução azul · Concluída verde; Alta vermelho · Média amarelo · Baixa verde) */
+/* [v1.5] cores por situação e prioridade · [v2.0] versão escura automática · [v2.1] versão escura pelo menu */
 :root{--gray:#59645c;--grayb:#e8ebe5;--purple:#6b3fb3;--purpleb:#eee6fa;--orange:#a8480a;--orangeb:#fbe5d2;--yellow:#7a5a00;--yellowb:#fcefc0;--green:#1d7544;--greenb:#dcf0e1}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--gray:#b4beb8;--grayb:#2b3430;--purple:#c3a6f5;--purpleb:#2e2444;--orange:#f6a468;--orangeb:#3d2a1a;--yellow:#f0cf63;--yellowb:#3a3213;--green:#7fd6a0;--greenb:#1c3a2a}}
 :root[data-theme="dark"]{--gray:#b4beb8;--grayb:#2b3430;--purple:#c3a6f5;--purpleb:#2e2444;--orange:#f6a468;--orangeb:#3d2a1a;--yellow:#f0cf63;--yellowb:#3a3213;--green:#7fd6a0;--greenb:#1c3a2a}
@@ -264,6 +302,7 @@ li label{display:flex;gap:10px;align-items:center;padding:6px 0;flex:1;min-width
 .st.k0{color:var(--gray)}.st.k1{color:var(--blue);background:var(--bluebg);border-color:var(--blue)}.st.k2{color:var(--green);background:var(--greenb);border-color:var(--green)}
 
 /* ---------- 12. Contagem regressiva = etiqueta de coleção ---------- */
+/* [v1.4] cartões da contagem regressiva (laranja = falta menos de 7 dias, vermelho = passou) · visual v2.0 */
 .card.cd{position:relative;padding:16px 18px 14px 22px;cursor:pointer;box-shadow:inset 0 0 0 5px var(--card),inset 0 0 0 6px var(--line2),var(--sh)}
 .card.cd::before{content:"";position:absolute;left:0;top:0;bottom:0;width:5px;background:var(--amb)}
 .card.cd .g1{font:600 17px/1.25 var(--serif)}
@@ -272,11 +311,14 @@ li label{display:flex;gap:10px;align-items:center;padding:6px 0;flex:1;min-width
 .card.cd:active{background:var(--card2)}
 
 /* aba (accordion) da espécie dentro do gênero */
+/* [v1.6] */
 .spb{padding:4px 16px 16px;border-top:1px solid var(--line);background:linear-gradient(var(--card2),var(--card) 80px)}
 
 /* ---------- 13. Agenda ---------- */
+/* [v1.8] calendário, dia selecionado, hoje e bolinhas coloridas dos itens · visual v2.0 */
 .cg{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;text-align:center;background:var(--card);border:1px solid var(--line);border-radius:18px;padding:10px 8px 8px;box-shadow:var(--sh)}
 .cg>small{font:700 11px/1 var(--sans);letter-spacing:.08em;color:var(--mut);padding:4px 0 8px}
+/* [v1.9] "D" de domingo em outra cor */
 .cg>small:first-child{color:var(--blue)}
 .cl{position:relative;display:flex;flex-direction:column;align-items:center;min-height:58px;padding:13px 0 4px;border:1px solid transparent;border-radius:12px;background:var(--card2);color:var(--ink);font:inherit;transition:background .15s}
 .cl b{display:grid;place-items:center;width:26px;height:26px;margin-top:-3px;border-radius:50%;font-size:15px;font-weight:600}
@@ -285,15 +327,18 @@ li label{display:flex;gap:10px;align-items:center;padding:6px 0;flex:1;min-width
 .cl .dots{display:flex;flex-wrap:wrap;justify-content:center;font-size:10px;color:var(--mut);margin-top:2px}
 .dot{display:inline-block;width:7px;height:7px;border-radius:50%;margin:1px;background:var(--blue);flex:none}
 .dot.red{background:var(--red)}.dot.orange{background:var(--orange)}.dot.yellow{background:var(--yellow)}.dot.green{background:var(--green)}.dot.purple{background:var(--purple)}.dot.gray{background:var(--gray)}
+/* [v1.9] domingos em azul; feriados com fundo destacado e número vermelho */
 .cl.dom{background:var(--bluebg)}.cl.dom b{color:var(--blue)}
 .cl.hol{background:var(--orangeb)}.cl.hol b{color:var(--red)}
 .cl.td b{background:var(--acc);color:var(--onacc)}
+/* [v1.9] letra da escala (M/N/F) no canto do dia */
 .sc{position:absolute;top:3px;right:5px;font:700 9px/1 var(--mono);color:var(--gray)}
 .sc.M{color:var(--yellow)}.sc.N{color:var(--purple)}.sc.F{color:var(--green)}
 [data-a="agm"]{width:44px;height:44px;min-height:0;padding:0;font-size:22px;line-height:1;display:grid;place-items:center}
 [data-a="agm"]+b{font:600 21px/1.2 var(--serif);text-transform:none!important}
 [data-a="agm"]+b::first-letter{text-transform:uppercase}
 .card.gen[data-a="agi"] .dot{width:10px;height:10px}
+/* [v1.10] legenda retrátil da agenda */
 details.lg{margin-top:12px;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px 16px}
 details.lg summary{cursor:pointer;font-weight:600;color:var(--mut);list-style:none;display:flex;align-items:center;justify-content:space-between}
 details.lg summary::-webkit-details-marker{display:none}
@@ -302,6 +347,7 @@ details.lg[open] summary::after{transform:rotate(180deg)}
 details.lg p{margin:10px 0 0}
 
 /* ---------- 14. Botões compactos da família e subabas do Painel ---------- */
+/* [v1.10] botões da família numa linha só (rola para o lado) e subabas do Painel (.seg) */
 .acts.fb{flex-wrap:nowrap;gap:6px;padding:10px 12px;overflow-x:auto;scrollbar-width:none}
 .acts.fb::-webkit-scrollbar{display:none}
 .acts.fb .sec,.acts.fb .lnk{font-size:13px;padding:6px 11px;min-height:34px;white-space:nowrap}
@@ -310,6 +356,7 @@ details.lg p{margin:10px 0 0}
 .seg button.on{background:var(--acc);color:var(--onacc)}
 
 /* ---------- 15. Detalhes finais ---------- */
+/* [v2.0] */
 #app>p{line-height:1.55}
 #app ::-webkit-scrollbar{width:8px;height:8px}
 #app ::-webkit-scrollbar-thumb{background:var(--line2);border-radius:8px}

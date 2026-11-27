@@ -1,18 +1,88 @@
 
+// =====================================================================
+// HISTÓRICO DE VERSÕES DO DIÁRIO DE PESQUISA
+// ---------------------------------------------------------------------
+// Cada trecho do código traz a etiqueta da versão em que entrou, ex.: [v1.2].
+// Quando uma parte foi crescendo com o tempo, a etiqueta lista as etapas:
+//   // [v1.0] tela do gênero · [v1.2] espécies · [v2.1] diário de notas
+// Um "?" (ex.: [v2.0?]) indica que a versão exata é a mais provável, não certa.
+//
+// Como foi montado: as marcas [v2.1] e [v2.2] já existiam no código. As
+// anteriores foram reconstruídas pela ordem dos seus pedidos nas conversas
+// do projeto; a numeração 1.0 a 1.10 é uma reconstrução. Se você lembrar de
+// outros números, troque aqui e nas etiquetas (Localizar e substituir).
+//
+// v1.0  (≈21–22/11/2026) PRIMEIRA VERSÃO
+//       Família › Gênero › Atividades › Subatividades. Gênero com situação
+//       (Potencial, Planejado, Em andamento, Pausado, Concluído), prioridade
+//       e nº estimado de espécies. Atividades com categoria (dissecção,
+//       ilustração, escrita...), situação (A fazer, Em execução, Concluída)
+//       e subatividades. Barra de progresso, Painel e busca.
+// v1.1  APP INDEPENDENTE do claude.ai: arquivos separados (index.html,
+//       style.css, app.js), instalável na tela inicial (manifest.webmanifest
+//       e ícones), funciona sem internet (sw.js), dados salvos no aparelho
+//       (localStorage) e tela de Backup e restauração.
+// v1.2  ESPÉCIES dentro do gênero: material disponível, dissecção completa ou
+//       parcial, peças com etapas D L I F, imagens de habitus. Atividades que
+//       só valem para espécie (dissecção) ou só para gênero (matriz, análise
+//       filogenética). Modelos de 1 clique, editáveis na tela Modelos.
+// v1.3  ATIVIDADES FORA DO GÊNERO: "Atividades gerais" (sem família: coleta,
+//       triagem, montagem), atividades da família e de subfamília/tribo
+//       (agrupamentos). Modelos de família (capítulo de livro, tese).
+//       Escrita com seções/subitens nomeados por você.
+// v1.4  Aba CONTAGEM REGRESSIVA (anos, meses e dias; horas só perto da data).
+// v1.5  PRAZOS nas atividades e na preparação das espécies; CORES por
+//       situação e prioridade (padrão comum: vermelho = alta etc.).
+// v1.6  (23/11) Abrir/Fechar todas; abrir uma família fecha as outras;
+//       espécies em abas dentro do gênero; nº de espécies na família e no
+//       gênero (no app × estimado).
+// v1.7  (23/11) Nº de espécies no app à direita da linha do gênero; divisão
+//       mais visível entre gêneros; botões da família antes dos gêneros.
+// v1.8  (23/11) Situação e prioridade nas espécies e nas atividades de
+//       família; botões do gênero antes das espécies; aba AGENDA (calendário
+//       com prazos, atividades próprias, cores e "Incluir no Painel?").
+// v1.9  (23/11) Agenda: ESCALA de trabalho do museu (M/N/F no canto do dia),
+//       FERIADOS (nacionais + 25/01, 09/07 e 20/11) e domingos destacados.
+// v1.10 (23/11) Botões compactos numa linha; "Sobre o app" no menu; legenda
+//       da agenda retrátil, sem lista de feriados do mês; "Gênero" automático
+//       antes do nome; espécie abreviada (B. punctatus); Painel em subabas.
+// v2.0  (23/11) NOVO VISUAL "gaveta entomológica" (quase tudo no style.css e
+//       no index.html): barra com besouro, abas com ícones, botão + flutuante,
+//       janelas que sobem de baixo, modo escuro automático, transições.
+// v2.1  (23–24/11) Desfazer exclusões; autor e ano (entre parênteses se for
+//       nova combinação); ordem da família com ícone; subgrupos um dentro do
+//       outro; Organizar (arrastar e A–Z); tema claro/escuro; cartão Hoje;
+//       Produção; diário de notas; Relatório do período; folgas até cada
+//       prazo; busca sem acentos; confirmação dentro do app; botão voltar do
+//       Android; datas de conclusão guardadas.
+// v2.2  (≈24/11) GOOGLE AGENDA: trazer eventos (.ics/.zip exportado) e enviar
+//       itens (botão "+ Google" e arquivo .ics com os prazos).
+//
+// Obs.: manifest.webmanifest (v1.1, cores atualizadas na v2.0) não aceita
+// comentários, por isso não tem etiquetas.
+// =====================================================================
+
 // ===== 1. CONSTANTES (listas fixas: situações, categorias, modelo de tarefas) =====
 // Trechos marcados com [v2.1] e [v2.2] são novidades dessas versões.
+// [v1.1] nome do espaço onde os dados ficam salvos no aparelho
 const KEY="diario-pesquisa-v1";
 const THK="diario-tema";   // [v2.1] tema escolhido no menu (guardado à parte, fora do backup)
+// [v1.0] situações das atividades (STAT), situações do gênero (GST) e prioridades (PRIO)
 const STAT=["A fazer","Em execução","Concluída"];
 const GST=["Potencial","Planejado","Em andamento","Pausado","Concluído"];
 const PRIO=["Alta","Média","Baixa"];
+// [v1.0] categorias de atividades · [v1.3?] Coleta e Montagem de espécimes (atividades sem família)
 const CATS=["Revisão bibliográfica","Material / empréstimos","Coleta","Triagem e identificação","Montagem de espécimes","Dissecção","Genitália / preparação","Fotografia / montagem","Ilustração","Morfometria","Matriz de caracteres","Molecular","Análise filogenética","Descrição / redescrição","Mapas e distribuição","Escrita","Revisão e submissão","Outra"];
+// [v1.2] etapas de cada peça dissecada e categorias que só valem para um nível
 const STEPS = [["d","D","Dissecada"],["l","L","Lâmina montada"],["i","I","Ilustrada"],["f","F","Fotografada"]];
 const ONLY_S = ["Dissecção","Genitália / preparação","Fotografia / montagem"];   // só espécie
 const ONLY_G = ["Matriz de caracteres","Análise filogenética"];                 // só gênero
+// [v1.2] níveis dos modelos · [v1.3] "Família / geral" e "Todos os níveis"
 const LV = {g:"Só gênero", s:"Só espécie", gs:"Gênero e espécie", f:"Família / geral", gsf:"Todos os níveis"};
+// [v1.5] cores por situação e por prioridade
 const GCOL=["gray","purple","blue","orange","green"],PCOL=["red","yellow","green"];   // cores: situação do gênero e prioridade
 const gc=v=>GCOL[GST.indexOf(v)],pc=v=>PCOL[PRIO.indexOf(v)];
+// [v1.3] categorias de escrita: aceitam seções/subitens com nome
 const WR=["Escrita","Revisão e submissão"];
 // [v2.1] combinação do nome da espécie (Código Internacional de Nomenclatura Zoológica, art. 51.3):
 // se a espécie está hoje em outro gênero que não o original, autor e ano vão entre parênteses
@@ -20,6 +90,7 @@ const CBO=["Original","Nova combinação (autor e ano entre parênteses)"];
 // [v2.1] ordens de insetos da família e seus ícones (para incluir outra ordem: acrescente aqui e em ICO)
 const ORD=[["Coleoptera","col"],["Lepidoptera","lep"],["Diptera","dip"],["Hymenoptera","hym"],["Hemiptera","hem"]];
 const OUTRA="Outra / não informada";
+// [v2.1] desenhos (SVG) dos ícones das ordens e da alça de arrastar (GRIP)
 const SV=p=>`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">${p}</svg>`;
 const ICO={
  col:SV('<path d="M11.1 4.8 9.4 2.7M12.9 4.8l1.7-2.1"/><ellipse cx="12" cy="6" rx="1.9" ry="1.4"/><rect x="8.3" y="7.9" width="7.4" height="2.8" rx="1.1"/><path d="M12 11.3c-3.3 0-4.5 1.7-4.5 4.4 0 3.3 2 5.6 4.5 5.6s4.5-2.3 4.5-5.6c0-2.7-1.2-4.4-4.5-4.4zM12 11.3v10M8.4 9.4 6 8.3l-.8-1.7M15.6 9.4 18 8.3l.8-1.7M7.6 13.5l-2.8-.4-1 1.6M16.4 13.5l2.8-.4 1 1.6M8 17.6l-2.4 1.1-.3 2M16 17.6l2.4 1.1.3 2"/>'),
@@ -31,6 +102,8 @@ const ICO={
 };
 const GRIP='<svg viewBox="0 0 24 24" fill="currentColor"><circle cx="9" cy="6" r="1.6"/><circle cx="15" cy="6" r="1.6"/><circle cx="9" cy="12" r="1.6"/><circle cx="15" cy="12" r="1.6"/><circle cx="9" cy="18" r="1.6"/><circle cx="15" cy="18" r="1.6"/></svg>';
 // Modelos padrão (editáveis na aba Modelos): peças, posições de habitus e atividades
+// [v1.2] peças da dissecção completa, posições de habitus e atividades padrão
+// [v1.3] últimas 5 atividades (lv:"f"): coleta, triagem, montagem, capítulo de livro e tese
 const defTpl = () => ({
   parts: ["Antena","Labro","Mandíbulas","Maxilas","Lábio","Perna protorácica","Perna mesotorácica","Perna metatorácica","Asa metatorácica","Metaendosternito","Terminália (esternitos VIII–X, tergitos VIII–XI)","Edeago ♂ (tegmen e lobo médio)","Ovipositor ♀","Espermateca ♀"],
   hab: ["Dorsal","Lateral","Frontal","Ventral"],
@@ -52,11 +125,13 @@ const defTpl = () => ({
 });
 
 // ===== 2. FUNÇÕES AUXILIARES (pequenas ferramentas reutilizáveis) =====
+// [v1.0] ferramentas básicas: achar elemento, proteger texto, criar código, data de hoje, formatar data
 const $=s=>document.querySelector(s);
 const esc=s=>String(s==null?"":s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const uid=()=>Math.random().toString(36).slice(2,9);
 const today=()=>new Date(Date.now()-new Date().getTimezoneOffset()*6e4).toISOString().slice(0,10);
 const fmt=d=>d.split("-").reverse().join("/");
+// [v1.0] cria uma atividade · [v1.5] prioridade (p)
 const mk=(t,c,s,d,nt,b,p)=>({id:uid(),t,c,s:s||STAT[0],d:d||"",nt:nt||"",p:p||"",b:(b||[]).map(x=>({id:uid(),t:x,x:0}))});
 // [v2.1] soma n dias a uma data "AAAA-MM-DD"
 const addD=(ds,n)=>{const d=new Date(ds+"T12:00:00");d.setDate(d.getDate()+n);return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")};
@@ -67,23 +142,29 @@ const auth=o=>{const a=[o.au,o.an].map(x=>String(x||"").trim()).filter(Boolean).
 const authH=o=>{const a=auth(o);return a?` <span class="au">${esc(a)}</span>`:""};
 
 // ===== 3. ESTADO (todos os dados vivem em S; a tela atual em V) =====
+// [v1.0] dados de exemplo da primeira abertura (depois ganhou: modelos v1.2, ordem e notas v2.1)
 function seed(){return{t:0,tpl:defTpl(),f:[{id:uid(),n:"Biphyllidae",ord:"Coleoptera",nt:"Exemplo: edite ou apague.",o:1,g:[{id:uid(),n:"Gênero exemplo",st:"Potencial",p:"Média",sp:"",nt:"Abra o gênero, toque em + Espécie e use os modelos de 1 clique.",tasks:[],spp:[]}]}]}}
+// [v1.1] carrega os dados salvos no aparelho (ou usa o exemplo)
 let S;try{S=JSON.parse(localStorage.getItem(KEY))}catch(e){}
 if(!S||!Array.isArray(S.f))S=seed();
 fix();
+// [v1.0] tela atual (aba, família, gênero, busca) · [v1.3] u = atividades da família/gerais
 let V={tab:"g",f:null,g:null,s:null,u:null,q:""},cb=null;
-V.cal={y:+today().slice(0,4),m:+today().slice(5,7)-1,d:today()};
-V.pt="x";
+V.cal={y:+today().slice(0,4),m:+today().slice(5,7)-1,d:today()};   // [v1.8] mês e dia escolhidos na Agenda
+V.pt="x";   // [v1.10] subaba aberta do Painel
 V.rp={k:"7",a:addD(today(),-6),b:today()};   // [v2.1] período do relatório
 V.oF=null;V.oG=null;V.ret=null;               // [v2.1] tela Organizar: família/gênero abertos e tela de retorno
 V.kf={from:today(),col:"blue",rm:1};V.kres=null; // [v2.2] opções e resultado da importação do Google Agenda
+// [v1.0] achar família e gênero · [v1.2] achar espécie · [v2.1] gênero só pelo código (gById)
 const fam=id=>S.f.find(f=>f.id===id),gen=(f,g)=>{const F=fam(f);return F&&F.g.find(x=>x.id===g)};
 const spc=(f,g,s)=>{const G=gen(f,g);return G&&G.spp.find(x=>x.id===s)};
 const gById=id=>{for(const f of S.f){const g=f.g.find(x=>x.id===id);if(g)return g}};
+// [v1.2] "dono" das atividades na tela · [v1.3] família/gerais (V.u) · [v1.6] espécie da aba tocada (V.ow)
 const own=()=>V.u?supOwn():V.ow?spc(V.f,V.g,V.ow):gen(V.f,V.g);
 
 // ===== 4. SALVAR (localStorage), AVISOS E "DESFAZER" =====
 let UNDO=null,TT=0;   // [v2.1] UNDO = cópia dos dados antes da última exclusão
+// [v1.1] salvar no aparelho · [v1.1?] aviso rápido (toast) · [v2.1] botão "Desfazer" no aviso
 function persist(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){toast("Não foi possível salvar!")}}
 function save(){S.t=Date.now();persist();if(UNDO){UNDO=null;$("#toast").style.display="none"}}   // outra mudança cancela o "Desfazer"
 function toast(m,u){const t=$("#toast");t.innerHTML=`<span>${esc(m)}</span>`+(u?'<button data-a="undo">Desfazer</button>':"");t.style.display="flex";clearTimeout(TT);TT=setTimeout(()=>{t.style.display="none";if(u)UNDO=null},u?6000:2200)}
@@ -95,26 +176,36 @@ function conf(msg,lab,fn){$("#modal").innerHTML=`<div class="sheet"><h3>Tem cert
 function copyText(s,msg){const ok=()=>toast(msg||"Copiado"),fb=()=>{const t=document.createElement("textarea");t.value=s;t.style.cssText="position:fixed;opacity:0";document.body.appendChild(t);t.select();try{document.execCommand("copy")?ok():toast("Não foi possível copiar")}catch(e){toast("Não foi possível copiar")}t.remove()};if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(s).then(ok,fb);else fb()}
 
 // ===== 5. FORMULÁRIOS E TELAS (funções que devolvem HTML) =====
+// [v1.0] barra de progresso (atividades concluídas) · [v1.2] conta também peças, habitus e espécies
 function units(o){let d=0,n=o.tasks.length;d+=o.tasks.filter(t=>t.s===STAT[2]).length;
  if(o.parts){o.parts.forEach(p=>STEPS.forEach(x=>{n++;d+=p[x[0]]?1:0}));o.hab.forEach(h=>{n++;d+=h.x?1:0})}
  if(o.spp)o.spp.forEach(s=>{const u=units(s);d+=u[0];n+=u[1]});return[d,n]}
 function prog(o){const[d,n]=units(o);return`<div class="bar"><span style="width:${n?d/n*100:0}%"></span></div><small>${d}/${n} itens concluídos</small>`}
+// [v1.0] janela de formulário (Salvar / Cancelar / Excluir) · [v2.0] passa a subir de baixo (visual no CSS)
 function form(title,fields,vals,ok,del,dl){
  $("#modal").innerHTML=`<div class="sheet"><h3>${title}</h3>${fields.map(f=>`<label>${f.l}${f.t==="area"?`<textarea name="${f.k}">${esc(vals[f.k])}</textarea>`:f.t==="sel"?`<select name="${f.k}">${f.o.map(o=>`<option${o===vals[f.k]?" selected":""}>${esc(o)}</option>`).join("")}</select>`:`<input name="${f.k}" type="${f.t||"text"}" value="${esc(vals[f.k])}">`}</label>`).join("")}<div class="r"><button class="pri" data-a="ok">Salvar</button><button class="sec" data-a="cancel">Cancelar</button>${del?`<button class="dng" data-a="del">${dl||"Excluir"}</button>`:""}</div></div>`;
  $("#modal").classList.add("on");cb={ok,del};syncHist();
 }
 const closeM=()=>{$("#modal").classList.remove("on");cb=null;syncHist()};
 const vals=()=>{const o={};document.querySelectorAll("#modal [name]").forEach(e=>o[e.name]=e.value.trim());return o};
+// [v1.0] campos do gênero (nome, situação, prioridade, nº de espécies, notas) · [v1.3] agrupamento · [v2.1] autor, ano e agrupamento aninhado
 const gForm=f=>[{k:"n",l:"Nome do gênero"},{k:"au",l:"Autor (opcional)"},{k:"an",l:"Ano (opcional)"}].concat(f.grp.length?[{k:"gr",l:"Agrupamento (opcional)",t:"sel",o:["(nenhum)"].concat(grAll(f).map(x=>grPath(f,x)))}]:[],[{k:"st",l:"Situação",t:"sel",o:GST},{k:"p",l:"Prioridade",t:"sel",o:PRIO},{k:"sp",l:"Nº de espécies (aprox.)"},{k:"nt",l:"Notas",t:"area"}]);
+// [v1.0] campos da atividade · [v1.2] categorias conforme o nível · [v1.3] seções/subitens · [v1.5] prioridade e prazo · [v2.1] data de conclusão
 const tForm=(c,nw,o)=>[{k:"t",l:"Atividade"},{k:"c",l:"Categoria",t:"sel",o:!c||catsFor(o).includes(c)?catsFor(o):[c,...catsFor(o)]},{k:"s",l:"Situação",t:"sel",o:STAT},{k:"p",l:"Prioridade",t:"sel",o:["Sem prioridade",...PRIO]},{k:"d",l:"Prazo",t:"date"}].concat(nw?[]:[{k:"dc",l:"Data de conclusão (preenchida sozinha ao concluir)",t:"date"}],[{k:"nt",l:"Notas",t:"area"}]).concat(nw?[{k:"b",l:"Seções / subitens (separados por vírgula, opcional)"}]:[]);
 
+// [v1.0] tela Grupos: busca e lista · [v1.3] cartão "Atividades gerais" · [v1.6] botão Abrir/Fechar todas
 function vGroups(){return`<div class="tools"><input id="q" type="search" placeholder="Buscar família, gênero ou espécie" value="${esc(V.q)}" style="flex:1;min-width:0"><button class="sec" data-a="tgf" style="white-space:nowrap">${S.f.some(f=>f.o)?"Fechar todas":"Abrir todas"}</button></div><div class="card gen" id="gecard" style="border-top:0" data-a="ou" data-i="*"><b>📌 Atividades gerais</b> <small>sem família</small><div><span class="chip">${S.ge.tasks.filter(t=>t.s!==STAT[2]).length} em aberto</span></div>${prog(S.ge)}</div><div id="list"></div>`}
+// [v1.0] cartão da atividade com subatividades · [v1.3] "+ seção ou subitem" na escrita · [v1.5] chips de prioridade e prazo (vermelho se atrasado) · [v2.1] chip ✓ com a data de conclusão
 function taskH(t){
  const k=STAT.indexOf(t.s),over=t.d&&t.d<today()&&k<2,sd=t.b.filter(x=>x.x).length;
  return`<div class="task s${k}"><div class="r"><button class="st k${k}" data-a="cy" data-i="${t.id}" title="Alternar situação">${["○","◐","●"][k]}</button><div class="g1"><b>${esc(t.t)}</b><div><span class="chip">${esc(t.c)}</span>${t.p?`<span class="chip ${pc(t.p)}">Prioridade ${esc(t.p.toLowerCase())}</span>`:""}<button class="chip ${t.d?(over?"red":"blue"):""}" data-a="dd" data-i="${t.id}">📅 ${t.d?fmt(t.d):"+ prazo"}</button>${k===2&&t.dc?`<span class="chip green">✓ ${fmt(t.dc)}</span>`:""}${t.b.length?`<span class="chip">${sd}/${t.b.length}</span>`:""}</div></div><button class="ic" data-a="et" data-i="${t.id}">✎</button></div>${t.nt?`<div class="note" style="margin:4px 0 0 46px">${esc(t.nt)}</div>`:""}<ul>${t.b.map(x=>`<li><label><input type="checkbox" data-a="sb" data-i="${t.id}|${x.id}"${x.x?" checked":""}><span class="${x.x?"dn":""}">${esc(x.t)}</span></label><span><button class="ic" data-a="es" data-i="${t.id}|${x.id}">✎</button><button class="ic" data-a="ds" data-i="${t.id}|${x.id}">✕</button></span></li>`).join("")}</ul><input class="addsub" data-sub="${t.id}" placeholder="${WR.includes(t.c)?"+ seção ou subitem (Enter)":"+ subatividade (Enter)"}"></div>`;
 }
+// [v1.8] chips da espécie: situação e prioridade · resumo da espécie fechada: material e dissecção [v1.2], prazo [v1.5]
 const spSt=s=>`<span class="chip ${gc(s.st)}">${esc(s.st)}</span><span class="chip ${pc(s.p)}">Prioridade ${esc((s.p||"").toLowerCase())}</span>`;
 const spChips=s=>`${spSt(s)}${s.ex?`<span class="chip">${esc(s.ex)}</span>`:""}<span class="chip blue">Dissecção: ${esc(s.tp)}</span>${s.d?`<span class="chip ${s.d<today()?"red":"blue"}">📅 ${fmt(s.d)}</span>`:""}`;
+// [v1.0] tela do gênero · [v1.2] lista de espécies · [v1.6] espécies em abas + Abrir/Fechar todas
+// [v1.8] botões + Espécie / Editar gênero antes da lista · [v1.10] "Gênero" automático e espécie abreviada
+// [v2.1] autor e ano, chip do agrupamento, botão Ordenar e diário de notas
 function vGen(){
  const F=fam(V.f),g=gen(V.f,V.g);if(!g){V.g=null;return vGroups()}
  const x=grById(F,g.gr);
@@ -123,17 +214,24 @@ function vGen(){
  h+=`<div class="r" style="justify-content:space-between"><div class="grp">Espécies (${g.spp.length})</div>${g.spp.length>1?`<button class="lnk" data-a="ordG">Ordenar</button>`:""}${g.spp.length?`<button class="lnk" data-a="tgs">${g.spp.some(s=>s.o)?"Fechar todas":"Abrir todas"}</button>`:""}</div>`+(g.spp.map(s=>`<section class="card"><div class="fh" data-a="os" data-i="${s.id}"><b><em>${esc(abbr(g,s.n))}</em>${authH(s)}</b><span>${s.o?"▾":"▸"}</span></div>${s.o?`<div class="spb" data-sp="${s.id}">${vSp(s)}</div>`:`<div class="gen" style="border-top:0;padding-top:0" data-a="os" data-i="${s.id}">${spChips(s)}${prog(s)}</div>`}</section>`).join("")||'<div class="empty">Nenhuma espécie ainda. Toque no + para adicionar.</div>');
  return h+`<div class="grp">Atividades do gênero</div>`+tasksH(g)+notesH(g);
 }
+// [v1.0] todas as atividades (para Painel/Agenda): gêneros · [v1.2] espécies · [v1.3] gerais, família e subgrupos
 const allT=()=>{const r=[];S.ge.tasks.forEach(t=>r.push({u:"*",o:S.ge,t}));S.f.forEach(f=>{f.tasks.forEach(t=>r.push({f,u:f.id,o:f,t}));f.grp.forEach(x=>x.tasks.forEach(t=>r.push({f,u:f.id+"|"+x.id,o:x,t})));f.g.forEach(g=>{g.tasks.forEach(t=>r.push({f,g,t}));g.spp.forEach(s=>s.tasks.forEach(t=>r.push({f,g,s,t})))})});return r};
+// [v1.0] "onde está" cada atividade · [v1.3] gerais/família/subgrupo · [v1.8] itens da Agenda
 const where=x=>x.ag?"Atividade da agenda":x.u?(x.u==="*"?"Atividades gerais":(x.o.r?esc(grl(x.o))+" · ":"")+esc(x.f.n)):"<em>"+esc(x.s?abbr(x.g,x.s.n):x.g.n)+"</em> · "+esc(x.f.n);
 // [v2.1] linha de prazo: "em 12 dias · 5 folgas" (ou "atrasado 3 dias")
 const dlH=(d,dn)=>{if(!d||dn)return"";const fg=folgas(d);return`<div class="dl${d<today()?" late":""}">${rel(d)}${fg!=null?" · "+pl(fg,"folga","folgas"):""}</div>`};
+// [v1.0] cartão de atividade no Painel · [v1.5] prioridade e prazo · [v1.8] itens da Agenda · [v2.1] linha de prazo e folgas
 const item=x=>`<div class="card gen" style="border-top:0" data-a="${x.ag?"eag":x.u?"ou":"og"}" data-i="${x.ag?x.ag.id:x.u||x.f.id+"|"+x.g.id+"|"+(x.s?x.s.id:"")}"><b>${esc(x.t.t)}</b><div><span class="chip">${esc(x.t.c)}</span>${x.t.p?`<span class="chip ${pc(x.t.p)}">Prioridade ${esc(x.t.p.toLowerCase())}</span>`:""}${x.t.d?`<span class="chip ${x.t.d<today()?"red":"blue"}">📅 ${fmt(x.t.d)}</span>`:""}</div>${dlH(x.t.d,x.t.s===STAT[2])}<small>${where(x)}</small></div>`;
 // nomes: "Gênero X" automático e espécie abreviada (B. punctatus)
+// [v1.10] "Gênero" antes do nome (gl) e gênero abreviado na espécie (abbr)
 const gl=n=>"Gênero <em>"+esc(n)+"</em>";
 const abbr=(g,n)=>{const G=(g.n||"").trim(),w=(n||"").trim();if(!G||!w)return w;const a=G[0].toUpperCase()+".";if(w.startsWith(a))return w;if(w.toLowerCase().startsWith(G.toLowerCase()+" "))return a+" "+w.slice(G.length+1);return a+" "+w};
 // [v2.1] nome completo da espécie, para o relatório (Biphyllus punctatus)
 const fullSp=(g,s)=>{const G=(g.n||"").trim(),w=(s.n||"").trim();if(!G||!w)return w;if(nz(w).startsWith(nz(G)+" "))return w;if(w.startsWith(G[0].toUpperCase()+". "))return G+w.slice(2);return G+" "+w};
+// [v1.10] subabas do Painel
 const PT=[["x","Em execução"],["p","Prazos"],["g","Potenciais"]];
+// [v1.0] Painel: gêneros por situação, em execução e potenciais · [v1.5] prazos em ordem cronológica + prazo de preparação das espécies
+// [v1.8] atividades da Agenda marcadas "Incluir no Painel" · [v1.10] subabas · [v2.1] cartão Hoje e Produção no topo
 function vDash(){
  const T=allT(),G=[];S.f.forEach(f=>f.g.forEach(g=>G.push({f,g})));
  const ag=S.ag.filter(e=>e.pn).map(e=>({ag:e,t:{t:e.t,c:"Agenda",d:e.d,s:e.s,p:e.p}})),prep=[];
@@ -168,32 +266,43 @@ function prodH(){
  const T=allT(),td=T.filter(x=>x.t.s===STAT[2]).length,tile=(v,t,l)=>`<div><b>${v}<small>/${t}</small></b><span>${l}</span></div>`;
  return`<div class="grp">Produção</div><div class="stats">${STEPS.map((x,i)=>tile(c[x[0]],n,PL[i])).join("")}</div><div class="stats s3">${tile(hb,hn,"Habitus fotografados")}${tile(sok,sp,"Espécies com preparação completa")}${tile(td,T.length,"Atividades concluídas")}</div>`;
 }
+// [v1.10] número da versão e tela "Sobre o app" (texto atualizado na v2.1 e na v2.2)
 const VERSAO="2.2";   // mude aqui quando atualizar o app
 function vAbout(){
  let nG=0,nS=0;S.f.forEach(f=>{nG+=f.g.length;f.g.forEach(g=>nS+=g.spp.length)});
  return`<h2>Diário de Pesquisa</h2><p class="note">Sistemática e taxonomia · versão ${VERSAO}</p><p>Aplicativo pessoal para organizar o doutorado: famílias, gêneros e espécies, atividades e subatividades, prazos, escala de trabalho, agenda e diário de notas.</p><div class="grp">Seus dados</div><p>${S.f.length} famílias · ${nG} gêneros · ${nS} espécies.<br>Ficam salvos apenas neste aparelho. Faça backups com frequência (menu ⋮ › Backup e restauração).</p><div class="grp">Abas</div><p><b>Grupos</b>: famílias, gêneros, espécies, atividades e notas.<br><b>Painel</b>: hoje, produção, em execução, prazos e gêneros potenciais.<br><b>Agenda</b>: calendário com prazos, escala e feriados.<br><b>Contagem</b>: contagens regressivas.</p><div class="grp">Menu ⋮</div><p><b>Relatório</b>: o que foi concluído num período (para copiar ou compartilhar).<br><b>Organizar</b>: arrastar famílias, gêneros e espécies ou pôr em ordem alfabética.<br><b>Google Agenda</b>: trazer eventos (arquivo exportado do Google) e enviar prazos.<br><b>Modelos</b>: atividades e peças de 1 clique.<br><b>Tema</b>: automático, claro ou escuro.</p><div class="grp">Uso offline</div><p>Depois da primeira abertura funciona sem internet e pode ser instalado na tela inicial. Com internet, atualiza sozinho para a versão mais nova.</p>`;
 }
+// [v1.1] tela de backup (copiar) e restauração (colar)
 function vBackup(){return`<p class="note">Seus dados ficam salvos só neste aparelho, dentro do navegador. Copie o backup abaixo de vez em quando e guarde em lugar seguro (e-mail, Drive...).</p><textarea id="bkp" readonly style="min-height:160px">${esc(JSON.stringify(S,null,1))}</textarea><div class="tools" style="margin-top:8px"><button class="sec" data-a="copy">Copiar backup</button></div><div class="grp">Restaurar</div><textarea id="imp" placeholder="Cole aqui um backup (substitui tudo)"></textarea><div class="tools" style="margin-top:8px"><button class="dng" data-a="imp">Restaurar backup</button></div>`}
 
+// [v1.2] fix() nasceu quando os dados ganharam campos novos; a cada versão ganhou uma linha
 function fix(){ // completa dados antigos com os campos novos
+ // tpl [v1.2] · ge [v1.3] · cd [v1.4] · ag [v1.8] · sc = escala [v1.9] · nts das gerais [v2.1]
  S.tpl=S.tpl||defTpl();
  S.ge=S.ge||{tasks:[]};S.ge.tasks=S.ge.tasks||[];S.ge.nts=S.ge.nts||[];S.cd=S.cd||[];S.ag=S.ag||[];S.sc=S.sc||{on:1,pat:"MMMMNNFFFF",ref:"2026-11-23",pos:7};
+ // família: grp e tasks [v1.3] · nts, ord e pa (subgrupo dentro de subgrupo) [v2.1]
  S.f.forEach(f=>{f.grp=f.grp||[];f.tasks=f.tasks||[];f.nts=f.nts||[];if(f.ord===undefined)f.ord="Coleoptera";
   f.grp.forEach(x=>{x.tasks=x.tasks||[];x.nts=x.nts||[];x.pa=x.pa||"";if(x.pa&&!f.grp.some(y=>y.id===x.pa))x.pa=""});
   f.grp.forEach(x=>{let y=x,k=0;while(y&&y.pa&&k++<12){y=f.grp.find(z=>z.id===y.pa);if(y===x){x.pa="";break}}});   // [v2.1] evita subgrupo dentro de si mesmo
  });
+ // [v1.2] migração 3: "Levantar descrições" e "Redação do manuscrito" passam a valer para gênero e espécie
  if((S.v||0)<3){S.tpl.tk.forEach(k=>{if(k.lv==="g"&&(k.t==="Levantar descrições originais e literatura"||k.t==="Redação do manuscrito"))k.lv="gs"});S.v=3}
+ // [v1.3] migração 4: acrescenta aos modelos as atividades de família/gerais
  if(S.v<4){defTpl().tk.filter(k=>k.lv==="f").forEach(k=>{if(!S.tpl.tk.some(y=>y.t===k.t))S.tpl.tk.push(k)});S.v=4}
+ // gênero e espécies [v1.2] · situação e prioridade da espécie [v1.8] · nts [v2.1]
  S.f.forEach(f=>f.g.forEach(g=>{g.tasks=g.tasks||[];g.spp=g.spp||[];g.nts=g.nts||[];g.spp.forEach(s=>{s.parts=s.parts||[];s.hab=s.hab||[];s.tasks=s.tasks||[];s.nts=s.nts||[];s.st=s.st||GST[0];s.p=s.p||PRIO[1]})}));
 }
+// [v1.2] nível de quem tem a atividade (espécie, gênero) e categorias permitidas · [v1.3] nível família/geral
 const lvOf=o=>o.parts?"s":o.spp?"g":"f";
 const catsFor=o=>{const l=lvOf(o||own());return l==="f"?CATS:CATS.filter(c=>!(l==="s"?ONLY_G:ONLY_S).includes(c))};
+// [v1.2] botões de 1 clique (modelos)
 const chip=(a,i,t)=>`<button class="chip" data-a="${a}" data-i="${esc(i)}">+ ${esc(t==null?i:t)}</button>`;
 function qadd(o){ // atividades do modelo que ainda não estão em o (1 clique)
  const lv=lvOf(o),have=o.tasks.map(t=>t.t);
  const c=S.tpl.tk.filter(k=>k.lv.includes(lv)&&!have.includes(k.t));
  return c.length?`<div class="grp">Adicionar do modelo (1 clique)</div><div>${c.map(k=>chip("tq",S.tpl.tk.indexOf(k),k.t)).join("")}</div>`:"";
 }
+// [v1.0] atividades agrupadas por situação · [v1.2] + modelos de 1 clique
 function tasksH(o){
  let h="";[1,0,2].forEach(k=>{const ts=o.tasks.filter(t=>t.s===STAT[k]);if(ts.length)h+=`<div class="grp">${STAT[k]} (${ts.length})</div>`+ts.map(taskH).join("")});
  return h+qadd(o)+`<div class="tools" style="margin-top:8px"><button class="sec" data-a="addTask">+ Atividade própria</button></div>`;
@@ -205,6 +314,8 @@ function notesH(o){
  return`<div class="r" style="justify-content:space-between"><div class="grp">Diário de notas (${L.length})</div><button class="lnk" data-a="addNt">+ Nota</button></div>`
  +(L.map(n=>`<div class="nt" data-a="eNt" data-i="${n.id}"><small>${fmt(n.d)}</small><div>${esc(n.tx).replace(/\n/g,"<br>")}</div></div>`).join("")||'<div class="note" style="margin:0 2px 8px">Anotações com data: observações, decisões, dúvidas...</div>');
 }
+// [v1.2] espécie: material, dissecção completa/parcial, peças (D L I F), + Completa ♂/♀ e habitus
+// [v1.5] prazo da preparação · [v1.6] passa a abrir como aba dentro do gênero · [v1.8] situação e prioridade · [v2.1] diário de notas
 function vSp(s){
  const hp=s.parts.map(p=>p.n),hh=s.hab.map(x=>x.n);
  const fp=S.tpl.parts.filter(n=>!hp.includes(n)),fh=S.tpl.hab.filter(n=>!hh.includes(n));
@@ -220,13 +331,17 @@ function vSp(s){
  return h+`<div class="grp">Atividades da espécie</div>`+tasksH(s)+notesH(s);
 }
 // ----- atividades gerais / de categorias superiores e contagens regressivas -----
+// [v1.3] atividades gerais (*), da família ou de um subgrupo; seções separadas por vírgula
 const supOwn=()=>{if(V.u==="*")return S.ge;const[f,r]=V.u.split("|"),F=fam(f);return F&&(r?grById(F,r):F)};
 const sp=s=>s?s.split(",").map(x=>x.trim()).filter(Boolean):[];
+// [v1.5] a preparação da espécie ainda tem peça ou habitus pendente?
 const prepPend=s=>!(s.parts.length+s.hab.length)||s.parts.some(p=>STEPS.some(x=>!p[x[0]]))||s.hab.some(h=>!h.x);
+// [v1.3] tela de atividades gerais / da família / do subgrupo · [v2.1] diário de notas
 function vSup(){
  const o=supOwn();if(!o){V.u=null;return vGroups()}
  return`<h2>${V.u==="*"?"Atividades gerais":esc(o.r?grl(o):o.n)}</h2><p class="note">${V.u==="*"?"Atividades sem família: coletas, triagem de várias famílias, montagem de material...":esc(o.nt||"")}</p>${prog(o)}`+tasksH(o)+notesH(o);
 }
+// [v1.4] contagem regressiva: formatos, cálculo de anos/meses/dias e horas perto da data
 const FM={ymd:"Anos, meses e dias",md:"Meses e dias",d:"Só dias"};
 const cdT=c=>new Date(c.d+"T"+(c.h||"23:59")+":00");
 const pl=(n,a,b)=>n+" "+(n===1?a:b);
@@ -246,6 +361,7 @@ function cdText(c){
 }
 const cdSt=c=>{const ms=cdT(c)-new Date();return ms<0?"late":ms<7*864e5?"soon":""};
 function tick(){document.querySelectorAll("[data-cd]").forEach(e=>{const c=S.cd.find(x=>x.id===e.dataset.cd);if(c){e.textContent=cdText(c);e.className="cdn "+cdSt(c)}})}
+// [v1.4] lista de contagens · [v2.1] folgas até a data
 function vCd(){
  return S.cd.slice().sort((a,b)=>cdT(a)-cdT(b)).map(c=>{const fg=folgas(c.d);return`<div class="card cd" data-a="ecd" data-i="${c.id}"><div class="r"><b class="g1">${esc(c.n)}</b><span class="note">✎</span></div><div class="cdn ${cdSt(c)}" data-cd="${c.id}">${cdText(c)}</div><small>${fmt(c.d)}${c.h?" às "+esc(c.h):""} · ${FM[c.fm]}${fg!=null?" · "+pl(fg,"folga","folgas")+" até lá":""}</small>${c.nt?`<div class="note">${esc(c.nt)}</div>`:""}</div>`}).join("")||'<div class="empty">Nenhuma contagem ainda. Toque no + para criar (qualificação, submissão de artigo, defesa...).</div>';
 }
@@ -253,11 +369,14 @@ const cdForm=[{k:"n",l:"Nome da atividade"},{k:"d",l:"Data",t:"date"},{k:"h",l:"
 const cdSave=(c,v)=>Object.assign(c,{n:v.n,d:v.d,h:v.h,fm:Object.keys(FM).find(k=>FM[k]===v.fm)||"ymd",hz:Math.max(0,+v.hz||0),nt:v.nt});
 
 // ----- agenda (calendário) -----
+// [v1.8] Agenda: cores, formulário com "Incluir no Painel?" · [v2.1] data de conclusão (dc)
 const CL={blue:"Azul",green:"Verde",red:"Vermelho",orange:"Laranja",yellow:"Amarelo",purple:"Roxo",gray:"Cinza"};
 let AGL=[];   // itens do dia selecionado (para tocar e editar)
 const agForm=[{k:"t",l:"Atividade"},{k:"d",l:"Data",t:"date"},{k:"h",l:"Hora (opcional)",t:"time"},{k:"s",l:"Situação",t:"sel",o:STAT},{k:"p",l:"Prioridade",t:"sel",o:["Sem prioridade",...PRIO]},{k:"col",l:"Cor no calendário",t:"sel",o:Object.values(CL)},{k:"pn",l:"Incluir no Painel?",t:"sel",o:["Sim","Não"]},{k:"nt",l:"Notas",t:"area"}];
 const agSave=(e,v)=>Object.assign(e,{t:v.t,d:v.d,h:v.h,s:v.s,p:PRIO.includes(v.p)?v.p:"",col:Object.keys(CL).find(k=>CL[k]===v.col)||"blue",pn:v.pn==="Sim"?1:0,nt:v.nt,dc:v.s===STAT[2]?(e.dc||today()):""});
+// [v1.8] editar atividade tocada na Agenda (antes ficava só dentro de "et") · [v2.1] data de conclusão e Desfazer
 function editTask(g,t){form("Editar atividade",tForm(t.c,0,g),{t:t.t,c:t.c,s:t.s,d:t.d,dc:t.dc,nt:t.nt,p:t.p||"Sem prioridade"},v=>{if(!v.t)return;Object.assign(t,{t:v.t,c:v.c,s:v.s,d:v.d,nt:v.nt,p:PRIO.includes(v.p)?v.p:"",dc:v.s===STAT[2]?(v.dc||t.dc||today()):""});done()},()=>rm("Atividade excluída",()=>{g.tasks=g.tasks.filter(x=>x!==t)}))}
+// [v1.8] tudo que tem data vai para a Agenda · [v2.2] eventos trazidos do Google Agenda
 function agItems(){ // tudo que tem data: atividades do app, prazos de preparação, contagens e atividades da agenda
  const L=[];
  allT().forEach(x=>{if(x.t.d){const dn=x.t.s===STAT[2];L.push({d:x.t.d,t:x.t.t,col:dn?"gray":(x.t.p?pc(x.t.p):"blue"),k:"t",sub:where(x),dn,x})}});
@@ -267,8 +386,10 @@ function agItems(){ // tudo que tem data: atividades do app, prazos de preparaç
  return L;
 }
 // abre o item tocado na Agenda ou no cartão "Hoje"
+// [v2.1] (a Agenda abria os itens desde a v1.8; aqui virou uma função só, usada também pelo cartão Hoje)
 function openIt(i){if(!i)return;if(i.k==="t")editTask(i.x.o||i.x.s||i.x.g,i.x.t);else if(i.k==="p")A.og({dataset:{i:i.x.f.id+"|"+i.x.g.id+"|"+i.x.s.id}});else if(i.k==="c")A.ecd({dataset:{i:i.x.id}});else A.eag({dataset:{i:i.x.id}})}
 // ----- escala de trabalho e feriados -----
+// [v1.9] escala do museu: ciclo de letras M/N/F a partir de uma data de referência
 const p2=n=>String(n).padStart(2,"0");
 const D8=s=>Date.UTC(+s.slice(0,4),+s.slice(5,7)-1,+s.slice(8,10))/864e5;
 const ESN={M:"manhã",N:"noite",F:"folga"},ESC={M:"yellow",N:"purple",F:"green"};
@@ -279,6 +400,7 @@ function folgas(ds){const e=S.sc,td=today();if(!e||!e.on||!e.pat||!ds||ds<td)ret
 // [v2.1] distância até a data: "hoje", "amanhã", "em 5 dias", "atrasado 2 dias"
 const rel=ds=>{const n=D8(ds)-D8(today());return n===0?"hoje":n===1?"amanhã":n>1?"em "+n+" dias":"atrasado "+pl(-n,"dia","dias")};
 // feriados fixos (para incluir outro, acrescente ["MM-DD","Nome"] nesta lista)
+// [v1.9] feriados nacionais + 25/01, 09/07 e 20/11; móveis calculados pela Páscoa (Carnaval, Sexta-feira Santa, Corpus Christi)
 const FIX=[["01-01","Confraternização Universal"],["01-25","Aniversário de São Paulo"],["04-21","Tiradentes"],["05-01","Dia do Trabalho"],["07-09","Revolução Constitucionalista"],["09-07","Independência do Brasil"],["10-12","Nossa Senhora Aparecida"],["11-02","Finados"],["11-15","Proclamação da República"],["11-20","Consciência Negra"],["12-25","Natal"]];
 function easter(y){const a=y%19,b=Math.floor(y/100),c=y%100,d=Math.floor(b/4),e=b%4,f=Math.floor((b+8)/25),g=Math.floor((b-f+1)/3),h=(19*a+b-d-g+15)%30,i=Math.floor(c/4),k=c%4,l=(32+2*e+2*i-h-k)%7,m=Math.floor((a+11*h+22*l)/451),mo=Math.floor((h+l-7*m+114)/31),da=((h+l-7*m+114)%31)+1;return new Date(y,mo-1,da)}
 const FC={};
@@ -290,6 +412,8 @@ function feriados(y){
  return FC[y]=H;
 }
 const hn=h=>h.n+(h.pf?" (ponto facultativo)":"");
+// [v1.8] calendário do mês e itens do dia · [v1.9] escala no canto, feriados e domingos · [v1.10] legenda retrátil (sem lista de feriados do mês)
+// [v2.2] botão "+ Google" em cada item e atalho para a tela Google Agenda
 function vAg(){
  const c=V.cal,M={},td=today(),H=feriados(c.y);
  agItems().forEach(i=>(M[i.d]=M[i.d]||[]).push(i));
@@ -305,11 +429,14 @@ function vAg(){
  +'<div class="tools" style="margin-top:12px;flex-wrap:wrap"><button class="sec" data-a="escf">⚙ Escala de trabalho</button><button class="sec" data-a="tab" data-i="k">Google Agenda</button></div><details class="lg"><summary>Legenda</summary><p class="note">Escala no canto de cada dia (M manhã · N noite · F folga). Domingos em azul; feriados com o número em vermelho. Cores dos prazos: vermelho = prioridade alta, amarelo = média, verde = baixa, azul = sem prioridade, cinza = concluída; laranja = dissecção/preparação; roxo = contagem regressiva. Atividades criadas na agenda usam a cor escolhida. O botão + Google abre o Google Agenda com o item já preenchido; eventos trazidos do Google aparecem como “Google Agenda”.</p></details>';
 }
 
+// [v1.2] tela Modelos: peças, posições de habitus e atividades padrão (incluir/excluir/restaurar)
 function vTpl(){
  const sec=(k,t)=>`<div class="grp">${t}</div>`+S.tpl[k].map((n,i)=>`<div class="r" style="justify-content:space-between"><span>${esc(n)}</span><button class="ic" data-a="tdel" data-i="${k}|${i}">✕</button></div>`).join("")+`<input class="addsub" style="margin:6px 0;width:100%" data-tadd="${k}" placeholder="+ adicionar (Enter)">`;
  return `<p class="note">Modelos usados nos botões de 1 clique. Mudar aqui não altera o que já foi adicionado às espécies e gêneros.</p>`+sec("parts","Peças de dissecção (espécie)")+sec("hab","Posições de habitus (espécie)")+`<div class="grp">Atividades padrão</div>`+S.tpl.tk.map((k,i)=>`<div class="card gen" style="border-top:0" data-a="tke" data-i="${i}"><b>${esc(k.t)}</b><div><span class="chip">${esc(k.c)}</span><span class="chip blue">${LV[k.lv]}</span></div></div>`).join("")+`<div class="tools"><button class="sec" data-a="tka">+ Atividade padrão</button><button class="dng" data-a="treset">Restaurar padrão</button></div>`;
 }
+// [v1.2] campos da espécie (nome, material, dissecção, notas) · [v1.5] prazo · [v1.8] situação e prioridade · [v2.1] autor, ano e combinação
 const sForm=[{k:"n",l:"Nome da espécie (só o epíteto, ex.: punctatus)"},{k:"au",l:"Autor (opcional)"},{k:"an",l:"Ano (opcional)"},{k:"cb",l:"Combinação",t:"sel",o:CBO},{k:"ex",l:"Material disponível (ex.: 3 ♂, 2 ♀)"},{k:"tp",l:"Dissecção planejada",t:"sel",o:["Não definida","Completa","Parcial"]},{k:"d",l:"Prazo da dissecção e preparação",t:"date"},{k:"st",l:"Situação",t:"sel",o:GST},{k:"p",l:"Prioridade",t:"sel",o:PRIO},{k:"nt",l:"Notas",t:"area"}];
+// [v1.2] campos da atividade padrão (modelo)
 const kForm=[{k:"t",l:"Atividade"},{k:"c",l:"Categoria",t:"sel",o:CATS},{k:"lv",l:"Vale para",t:"sel",o:Object.values(LV)},{k:"b",l:"Subatividades (separadas por vírgula)"}];
 const kSave=(k,v)=>{k.t=v.t;k.c=v.c;k.lv=Object.keys(LV).find(x=>LV[x]===v.lv);k.b=v.b?v.b.split(",").map(x=>x.trim()).filter(Boolean):[]};
 
@@ -318,6 +445,7 @@ const famForm=[{k:"n",l:"Nome da família"},{k:"ord",l:"Ordem",t:"sel",o:ORD.map
 const ordIco=f=>{const o=ORD.find(x=>x[0]===f.ord),k=o?o[1]:"oth";return`<span class="ordic ${k}" title="${esc(f.ord||OUTRA)}">${ICO[k]}</span>`};
 
 // ----- agrupamentos supragenéricos (subfamília > tribo > subtribo...) [v2.1: um dentro do outro] -----
+// [v1.3] subfamília, tribo, subtribo e grupo de gêneros dentro da família · [v2.1] um dentro do outro (pa = "dentro de")
 const RANKS=["Subfamília","Tribo","Subtribo","Grupo de gêneros"];
 const NOPA="(direto na família)";
 const grl=x=>x.r+" "+x.n;
@@ -329,14 +457,19 @@ const grPath=(f,x)=>{const p=[];let y=x,k=0;while(y&&k++<9){p.unshift(grl(y));y=
 const grLab=(f,id)=>{const x=grById(f,id);return x?grPath(f,x):"(nenhum)"};
 const grId=(f,l)=>{const x=f.grp.find(y=>grPath(f,y)===l);return x?x.id:""};
 const grForm=(f,x)=>{const ex=x?grDesc(f,x):[];return[{k:"n",l:"Nome"},{k:"r",l:"Categoria",t:"sel",o:RANKS},{k:"pa",l:"Dentro de",t:"sel",o:[NOPA].concat(grAll(f).filter(y=>!ex.includes(y.id)).map(y=>grPath(f,y)))},{k:"nt",l:"Notas",t:"area"}]};
+// [v1.0] linha do gênero na família · [v1.6] nº de espécies no app · [v1.7] nº à direita e bandeja separada · [v2.1] autor e ano
 const genRow=(f,g)=>`<div class="gen" data-a="og" data-i="${f.id}|${g.id}"><div class="r"><b class="g1">${gl(g.n)}${authH(g)}</b><small>${pl(g.spp.length,"espécie","espécies")}</small></div><div><span class="chip ${gc(g.st)}">${esc(g.st)}</span><span class="chip ${pc(g.p)}">Prioridade ${esc(g.p.toLowerCase())}</span>${g.sp?`<span class="chip">${esc(g.sp)} spp.</span>`:""}</div>${prog(g)}</div>`;
 // [v2.1] texto de um item para a busca (nome, autor, notas, atividades, subitens e diário)
 const txt=o=>[o.n,o.au,o.an,o.nt].concat((o.tasks||[]).map(t=>[t.t,t.nt].concat(t.b.map(b=>b.t)).join(" ")),(o.nts||[]).map(n=>n.tx)).join(" ");
+// [v1.3] bloco do subgrupo com seus gêneros e botão Atividades · [v2.1] subgrupos de dentro
 function secH(f,x,gs,q,dep){ // um subgrupo, seus gêneros e os subgrupos de dentro
  const ids=grDesc(f,x),m=gs.filter(g=>g.gr===x.id),tot=f.g.filter(g=>ids.includes(g.gr)).length,inner=grKids(f,x.id).map(y=>secH(f,y,gs,q,dep+1)).join("");
  if(q&&!m.length&&!inner)return"";
  return`<div class="grpbox"><div class="sub" data-a="editGrp" data-i="${f.id}|${x.id}"><span class="chip blue">${esc(x.r)}</span><b>${esc(x.n)}</b><small>${pl(tot,"gênero","gêneros")}</small><button class="chip" data-a="ou" data-i="${f.id}|${x.id}">Atividades (${x.tasks.length})</button><span>✎</span></div>${m.map(g=>genRow(f,g)).join("")}${inner}</div>`;
 }
+// [v1.0] lista de famílias e gêneros (com busca) · [v1.3] Atividades da família e + Subgrupo
+// [v1.6] abrir uma família fecha as outras; nº de gêneros e de espécies · [v1.7] botões da família antes dos gêneros
+// [v1.10] botões compactos numa linha · [v2.1] ícone da ordem e busca sem acentos (também em notas e atividades)
 function list(){
  const q=nz(V.q.trim());let h="";
  const ge=$("#gecard");if(ge)ge.hidden=!!q&&!nz("atividades gerais "+txt(S.ge)).includes(q);
@@ -542,14 +675,18 @@ function vK(){
  +(Object.keys(G).length?`<div class="grp">Eventos trazidos do Google</div><div class="card kbox">${Object.keys(G).map(c=>`<div class="r" style="justify-content:space-between;min-height:36px"><span>${esc(c)}</span><small>${pl(G[c],"evento","eventos")}</small></div>`).join("")}<button class="dng" data-a="kclr" style="margin-top:8px">Remover todos os eventos trazidos</button></div>`:"");
 }
 
+// [v2.0] fechar o menu ⋮ (o menu ganhou itens a cada versão: Sobre v1.10, Relatório/Organizar/Tema v2.1, Google Agenda v2.2)
 const closeMenu=()=>{$("#menu").hidden=true;$("#scrim").hidden=true;syncHist()};
 // ----- abas, deslize e animação -----
+// [v2.0?] troca de aba com animação para o lado certo · lista de telas: r e o [v2.1], k [v2.2]
 const TABS=["g","p","a","c","r","o","k","m","b","s"];
 let dir=0;
 function go(t){dir=Math.sign(TABS.indexOf(t)-TABS.indexOf(V.tab));V.tab=t;V.g=null;V.s=null;V.u=null;V.ret=null;render();$("#app").scrollTop=0}
 
 // ===== 6. RENDER (redesenha a tela a partir dos dados) =====
+// títulos das telas: Backup b [v1.1] · Modelos m [v1.2] · Contagem c [v1.4] · Agenda a [v1.8] · Sobre s [v1.10] · Relatório r e Organizar o [v2.1] · Google Agenda k [v2.2]
 const TTL={m:"Modelos",b:"Backup",s:"Sobre o app",a:"Agenda",c:"Contagens regressivas",r:"Relatório",o:"Organizar",k:"Google Agenda"};
+// [v1.0] desenha a tela atual · [v2.0] título na barra, seta de voltar, botão + flutuante e animação de entrada
 function render(){
  document.querySelectorAll("#tabs button").forEach(b=>b.classList.toggle("on",b.dataset.i===V.tab));
  const a=$("#app");
@@ -569,17 +706,25 @@ function render(){
 const done=()=>{fix();save();closeM();render()}; // fix() garante que itens novos tenham todos os campos
 const A={
  tab(el){const r={tab:V.tab,f:V.f,g:V.g,u:V.u},t=el.dataset.i;closeMenu();go(t);if("mbsrok".includes(t)&&r.tab!==t)V.ret=r},   // [v2.1] lembra de onde veio
+ // [v1.6] abrir uma família fecha as outras; Abrir/Fechar todas (famílias e espécies)
  tf(el){const f=fam(el.dataset.i);if(f.o)f.o=0;else{S.f.forEach(x=>x.o=0);f.o=1}save();render()},
  tgf(){const a=!S.f.some(f=>f.o);S.f.forEach(f=>f.o=a?1:0);save();render()},
  tgs(){const g=gen(V.f,V.g),a=!g.spp.some(s=>s.o);g.spp.forEach(s=>s.o=a?1:0);save();render()},
+ // [v1.0] abrir um gênero · [v1.6] já abre na aba da espécie certa · [v1.3] ou = abrir atividades gerais/família/subgrupo
  og(el){const[f,g,s]=el.dataset.i.split("|");V.tab="g";V.u=null;V.f=f;V.g=g;if(s)gen(f,g).spp.forEach(x=>x.o=x.id===s?1:0);dir=1;render();$("#app").scrollTop=0},
  ou(el){V.tab="g";V.u=el.dataset.i;V.f=V.g=V.s=null;dir=1;render();$("#app").scrollTop=0},
+ // [v1.5] prazo da atividade (chip 📅)
  dd(el){const t=own().tasks.find(x=>x.id===el.dataset.i);form("Prazo da atividade",[{k:"d",l:"Prazo",t:"date"}],{d:t.d},v=>{t.d=v.d;done()},t.d?()=>{t.d="";done()}:null,"Remover prazo")},
+ // [v1.3] editar subitem/seção (nome e posição na lista)
  es(el){const[a,b]=el.dataset.i.split("|"),t=own().tasks.find(x=>x.id===a),i=t.b.findIndex(s=>s.id===b),x=t.b[i];form("Editar subitem",[{k:"t",l:"Nome"},{k:"p",l:"Posição na lista",t:"sel",o:t.b.map((_,j)=>String(j+1))}],{t:x.t,p:String(i+1)},v=>{if(!v.t)return;x.t=v.t;t.b.splice(i,1);t.b.splice(Math.max(0,Math.min(+v.p-1,t.b.length)),0,x);done()},()=>rm("Subitem excluído",()=>{t.b.splice(i,1)}))},
+ // [v1.4] criar e editar contagem regressiva
  addCd(){form("Nova contagem regressiva",cdForm,{fm:FM.ymd,hz:"7"},v=>{if(!v.n||!v.d)return toast("Informe o nome e a data");S.cd.push(cdSave({id:uid()},v));done()})},
  ecd(el){const c=S.cd.find(x=>x.id===el.dataset.i);form("Editar contagem",cdForm,{n:c.n,d:c.d,h:c.h,fm:FM[c.fm],hz:String(c.hz),nt:c.nt},v=>{if(!v.n||!v.d)return toast("Informe o nome e a data");cdSave(c,v);done()},()=>rm("Contagem excluída",()=>{S.cd=S.cd.filter(x=>x!==c)}))},
+ // [v1.9] configurar a escala de trabalho
  escf(){const e=S.sc;form("Escala de trabalho",escForm,{pat:e.pat,ref:e.ref,pos:String(e.pos),on:e.on?"Sim":"Não"},v=>{const p=v.pat.toUpperCase().replace(/[^A-Z]/g,"");if(!p||!v.ref)return toast("Informe o padrão e a data de referência");S.sc={pat:p,ref:v.ref,pos:Math.min(p.length,Math.max(1,+v.pos||1)),on:v.on==="Sim"?1:0};done()})},
+ // [v1.10] trocar a subaba do Painel
  ptab(el){V.pt=el.dataset.i;render()},
+ // [v1.8] Agenda: mudar de mês, escolher dia, ir para hoje, abrir item, criar e editar atividade · [v2.1] hji = item do cartão Hoje
  agm(el){const c=V.cal,d=new Date(c.y,c.m+(+el.dataset.i),1);c.y=d.getFullYear();c.m=d.getMonth();render()},
  agd(el){V.cal.d=el.dataset.i;render()},
  agt(){const s=today();V.cal={y:+s.slice(0,4),m:+s.slice(5,7)-1,d:s};render()},
@@ -587,15 +732,20 @@ const A={
  hji(el){openIt(HJL[+el.dataset.i])},
  addAg(){form("Nova atividade na agenda",agForm,{d:V.cal.d,s:STAT[0],col:CL.blue,pn:"Sim"},v=>{if(!v.t||!v.d)return toast("Informe a atividade e a data");S.ag.push(agSave({id:uid()},v));V.cal.d=v.d;V.cal.y=+v.d.slice(0,4);V.cal.m=+v.d.slice(5,7)-1;done()})},
  eag(el){const e=S.ag.find(x=>x.id===el.dataset.i);form("Editar atividade da agenda",agForm,{t:e.t,d:e.d,h:e.h,s:e.s,p:e.p||"Sem prioridade",col:CL[e.col],pn:e.pn?"Sim":"Não",nt:e.nt},v=>{if(!v.t||!v.d)return toast("Informe a atividade e a data");agSave(e,v);V.cal.d=v.d;done()},()=>rm("Atividade excluída",()=>{S.ag=S.ag.filter(x=>x!==e)}))},
+ // [v1.0] voltar · [v2.0] seta de voltar na barra · [v2.1] volta para a tela de onde veio (V.ret) · menu ⋮
  back(){V.g=null;V.s=null;render()},
  navback(){if(V.tab!=="g"){const r=V.ret;if(r){go(r.tab);V.f=r.f;V.g=r.g;V.u=r.u;dir=-1;render()}else go("g");return}if(V.u)V.u=null;else V.g=null;dir=-1;render()},
  menu(){const o=$("#menu").hidden;$("#menu").hidden=!o;$("#scrim").hidden=!o;syncHist()},
+ // [v1.3] criar e editar subfamília/tribo · [v2.1] campo "Dentro de" e exclusão que mantém os gêneros
  addGrp(el){const f=fam(el.dataset.i);form("Novo agrupamento (subfamília, tribo...)",grForm(f),{r:RANKS[0],pa:NOPA},v=>{if(!v.n)return;f.grp.push({id:uid(),n:v.n,r:v.r,pa:grId(f,v.pa),nt:v.nt,tasks:[],nts:[]});f.o=1;done()})},
  editGrp(el){const[fi,gi]=el.dataset.i.split("|"),f=fam(fi),x=grById(f,gi);form("Editar agrupamento",grForm(f,x),{n:x.n,r:x.r,pa:x.pa?grLab(f,x.pa):NOPA,nt:x.nt},v=>{if(!v.n)return;Object.assign(x,{n:v.n,r:v.r,pa:grId(f,v.pa),nt:v.nt});done()},()=>rm("Agrupamento excluído (os gêneros foram mantidos)",()=>{f.g.forEach(g=>{if(g.gr===x.id)g.gr=x.pa||""});f.grp.forEach(y=>{if(y.pa===x.id)y.pa=x.pa||""});f.grp=f.grp.filter(y=>y!==x)}))},
+ // [v1.6] abrir/fechar a aba de uma espécie (abrir uma fecha as outras)
  backg(){V.s=null;render()},
  os(el){const g=gen(V.f,V.g),s=g.spp.find(x=>x.id===el.dataset.i);if(s.o)s.o=0;else{g.spp.forEach(x=>x.o=0);s.o=1}save();render()},
+ // [v1.2] criar e editar espécie · [v1.8] situação e prioridade · [v2.1] autor, ano, combinação e confirmação ao excluir
  addSp(){const g=gen(V.f,V.g);form("Nova espécie",sForm,{tp:"Não definida",st:GST[0],p:PRIO[1],cb:CBO[0]},v=>{if(!v.n)return;g.spp.push({id:uid(),n:v.n,au:v.au,an:v.an,cn:v.cb===CBO[1]?1:0,ex:v.ex,tp:v.tp,d:v.d,st:v.st,p:v.p,nt:v.nt,parts:[],hab:[],tasks:[],nts:[]});done()})},
  editSp(){const g=gen(V.f,V.g),s=own();form("Editar espécie",sForm,{n:s.n,au:s.au,an:s.an,cb:s.cn?CBO[1]:CBO[0],ex:s.ex,tp:s.tp,d:s.d,st:s.st,p:s.p,nt:s.nt},v=>{if(!v.n)return;Object.assign(s,{n:v.n,au:v.au,an:v.an,cn:v.cb===CBO[1]?1:0,ex:v.ex,tp:v.tp,d:v.d,st:v.st,p:v.p,nt:v.nt});done()},()=>conf("Excluir a espécie "+s.n+" e todo o seu progresso?","Excluir",()=>rm("Espécie excluída",()=>{g.spp=g.spp.filter(x=>x!==s);V.s=null})))},
+ // [v1.2] peças (marcar etapa, remover, adicionar, dissecção completa ♂/♀) e habitus
  pt(el){const[i,k]=el.dataset.i.split("|");own().parts[i][k]=el.checked?today():0;save();render()},   // [v2.1] guarda a data em vez de 1
  dp(el){const o=own(),i=+el.dataset.i;rm("Peça removida",()=>{o.parts.splice(i,1)})},
  ap(el){own().parts.push({n:el.dataset.i});save();render()},
@@ -603,21 +753,27 @@ const A={
  hb(el){own().hab[+el.dataset.i].x=el.checked?today():0;save();render()},
  dh(el){const o=own(),i=+el.dataset.i;rm("Posição de habitus removida",()=>{o.hab.splice(i,1)})},
  ah(el){own().hab.push({n:el.dataset.i,x:0});save();render()},
+ // [v1.2] modelos: 1 clique, excluir item, nova/editar atividade padrão, restaurar
  tq(el){const k=S.tpl.tk[+el.dataset.i];own().tasks.push(mk(k.t,k.c,STAT[0],"","",k.b));save();render()},
  tdel(el){const[k,i]=el.dataset.i.split("|");rm("Item do modelo removido",()=>{S.tpl[k].splice(+i,1)})},
  tka(){form("Nova atividade padrão",kForm,{c:CATS[0],lv:LV.gs},v=>{if(!v.t)return;const k={};kSave(k,v);S.tpl.tk.push(k);done()})},
  tke(el){const i=+el.dataset.i,k=S.tpl.tk[i];form("Editar atividade padrão",kForm,{t:k.t,c:k.c,lv:LV[k.lv],b:k.b.join(", ")},v=>{if(!v.t)return;kSave(k,v);done()},()=>rm("Atividade padrão excluída",()=>{S.tpl.tk.splice(i,1)}))},
  treset(){conf("Restaurar todos os modelos para o padrão?","Restaurar",()=>rm("Modelos restaurados",()=>{S.tpl=defTpl()}))},
+ // [v1.0] criar e editar família e gênero · [v1.3] agrupamento do gênero · [v1.6] nova família abre e fecha as outras · [v2.1] ordem, autor e ano, confirmação ao excluir
  addFam(){form("Nova família",famForm,{ord:ORD[0][0]},v=>{if(!v.n)return;S.f.forEach(x=>x.o=0);S.f.push({id:uid(),n:v.n,ord:v.ord===OUTRA?"":v.ord,nt:v.nt,o:1,g:[],grp:[],tasks:[],nts:[]});done()})},
  editFam(el){const f=fam(el.dataset.i);form("Editar família",famForm,{n:f.n,ord:f.ord||OUTRA,nt:f.nt},v=>{if(!v.n)return;f.n=v.n;f.ord=v.ord===OUTRA?"":v.ord;f.nt=v.nt;done()},()=>conf("Excluir a família "+f.n+" e todos os seus "+f.g.length+" gênero(s), espécies e atividades?","Excluir",()=>rm("Família excluída",()=>{S.f=S.f.filter(x=>x!==f)})))},
  addGen(el){const f=fam(el.dataset.i);form("Novo gênero",gForm(f),{st:GST[0],p:PRIO[1]},v=>{if(!v.n)return;f.g.push({id:uid(),n:v.n,au:v.au,an:v.an,st:v.st,p:v.p,sp:v.sp,nt:v.nt,gr:grId(f,v.gr),tasks:[],spp:[],nts:[]});f.o=1;done()})},
  editGen(){const f=fam(V.f),g=gen(V.f,V.g);form("Editar gênero",gForm(f),{n:g.n,au:g.au,an:g.an,st:g.st,p:g.p,sp:g.sp,nt:g.nt,gr:grLab(f,g.gr)},v=>{if(!v.n)return;Object.assign(g,{n:v.n,au:v.au,an:v.an,st:v.st,p:v.p,sp:v.sp,nt:v.nt,gr:grId(f,v.gr)});done()},()=>conf("Excluir o gênero "+g.n+", com "+g.spp.length+" espécie(s) e todo o progresso?","Excluir",()=>rm("Gênero excluído",()=>{f.g=f.g.filter(x=>x!==g);V.g=null})))},
+ // [v1.0] atividades: criar, editar, alternar situação (○ ◐ ●), marcar e excluir subatividade
+ // [v1.3] seções/subitens já no formulário · [v1.5] prioridade e prazo · [v2.1] datas de conclusão (para o Relatório)
  addTask(){const g=own();form("Nova atividade",tForm(0,1),{c:catsFor()[0],s:STAT[0]},v=>{if(!v.t)return;const t=mk(v.t,v.c,v.s,v.d,v.nt,sp(v.b),PRIO.includes(v.p)?v.p:"");if(t.s===STAT[2])t.dc=today();g.tasks.push(t);done()})},
  et(el){const g=own();editTask(g,g.tasks.find(x=>x.id===el.dataset.i))},
  cy(el){const t=own().tasks.find(x=>x.id===el.dataset.i);t.s=STAT[(STAT.indexOf(t.s)+1)%3];t.dc=t.s===STAT[2]?today():"";save();render()},
  sb(el){const[a,b]=el.dataset.i.split("|"),x=own().tasks.find(t=>t.id===a).b.find(s=>s.id===b);x.x=el.checked?today():0;save();render()},
  ds(el){const[a,b]=el.dataset.i.split("|"),t=own().tasks.find(t=>t.id===a);rm("Subitem excluído",()=>{t.b=t.b.filter(s=>s.id!==b)})},
+ // [v1.0] botões da janela de formulário
  ok(){if(cb)cb.ok(vals())},cancel:closeM,del(){if(cb&&cb.del)cb.del()},
+ // [v1.1] copiar backup e restaurar · [v2.1] confirmação e "Desfazer" na restauração
  copy(){const t=$("#bkp"),ok=()=>toast("Backup copiado"),fb=()=>{try{document.execCommand("copy")?ok():toast("Selecione o texto e copie manualmente")}catch(e){toast("Selecione o texto e copie manualmente")}};t.focus();t.select();t.setSelectionRange(0,t.value.length);if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(t.value).then(ok,fb);else fb()},
  imp(){let o;try{o=JSON.parse($("#imp").value);if(!o||!Array.isArray(o.f))throw 0}catch(e){return toast("Backup inválido")}conf("Restaurar este backup? Tudo o que está no app agora será substituído.","Restaurar",()=>rm("Backup restaurado",()=>{S=o}))},
  // [v2.1] desfazer a última exclusão
@@ -648,14 +804,18 @@ const A={
 };
 
 // ===== 8. EVENTOS (escuta cliques, digitação e teclas) =====
+// [v1.6] descobre em qual aba de espécie foi o clique (para várias espécies abertas ao mesmo tempo)
 ["click","keydown"].forEach(ev=>document.addEventListener(ev,e=>{const w=e.target.closest&&e.target.closest("[data-sp]");V.ow=w?w.dataset.sp:null},true));   // qual espécie (aba) recebeu o clique/tecla
+// [v1.0] um só "ouvinte" de cliques chama a ação do botão (data-a) · busca enquanto digita
 document.addEventListener("click",e=>{const el=e.target.closest("[data-a]");if(el&&A[el.dataset.a]){if(el.type!=="checkbox")e.preventDefault&&0;A[el.dataset.a](el)}});
 document.addEventListener("input",e=>{if(e.target.id==="q"){V.q=e.target.value;list()}});
 document.addEventListener("change",e=>{const el=e.target;if(el.dataset&&el.dataset.rp&&el.value){V.rp[el.dataset.rp]=el.value;render()}   // [v2.1] datas do relatório
  if(el.id==="kfrom"&&el.value)V.kf.from=el.value;if(el.id==="kcol")V.kf.col=el.value;if(el.id==="krm")V.kf.rm=el.checked?1:0;   // [v2.2] opções da importação
  if(el.id==="icsf"&&el.files&&el.files[0]){lerAgenda(el.files[0]);el.value=""}});
+// [v1.0] Enter no campo "+ subatividade" adiciona e mantém o cursor no campo
 document.addEventListener("keydown",e=>{const el=e.target;if(e.key==="Enter"&&el.dataset&&el.dataset.sub&&el.value.trim()){const t=own().tasks.find(x=>x.id===el.dataset.sub);t.b.push({id:uid(),t:el.value.trim(),x:0});save();render();const n=document.querySelector(`[data-sub="${t.id}"]`);if(n)n.focus()}});
 // deslizar com o dedo: a tela acompanha o gesto e troca com animação suave
+// [v2.0?] deslizar entre as abas principais (Grupos, Painel, Agenda, Contagem) e para voltar
 const pane=$("#app");
 let tx=0,ty=0,tt=0,mode=0;   // mode: 0 = indefinido, 1 = horizontal, -1 = vertical/ignorar
 const MAIN=["g","p","a","c"];
@@ -681,11 +841,13 @@ function release(e){
 }
 pane.addEventListener("touchend",release,{passive:true});
 pane.addEventListener("touchcancel",release,{passive:true});
+// [v1.2] Enter nos campos "+ outra posição de habitus" e "+ adicionar" dos Modelos
 document.addEventListener("keydown",e=>{ // Enter nos campos de habitus e de modelos
  const el=e.target,v=el.value&&el.value.trim();if(e.key!=="Enter"||!v)return;
  if(el.dataset.hab)own().hab.push({n:v,x:0});else if(el.dataset.tadd)S.tpl[el.dataset.tadd].push(v);else return;
  save();render();const n=document.querySelector(el.dataset.hab?"[data-hab]":`[data-tadd="${el.dataset.tadd}"]`);if(n)n.focus();
 });
+// [v1.0] tocar fora da janela de formulário fecha a janela
 $("#modal").addEventListener("click",e=>{if(e.target.id==="modal")closeM()});
 
 // ----- [v2.1] arrastar para reordenar (tela Organizar) -----
@@ -724,12 +886,13 @@ const temaAtual=()=>{try{return localStorage.getItem(THK)||""}catch(e){return""}
 try{matchMedia("(prefers-color-scheme: dark)").addEventListener("change",()=>applyTheme(temaAtual()))}catch(e){}
 
 // ===== 9. INÍCIO (primeira vez que a tela é desenhada) =====
-applyTheme(temaAtual());
-render();
+applyTheme(temaAtual());   // [v2.1]
+render();   // [v1.0]
 
-setInterval(()=>{if(V.tab==="c")tick()},20000);   // atualiza as contagens
+setInterval(()=>{if(V.tab==="c")tick()},20000);   // atualiza as contagens   // [v1.4]
 
 // ===== 10. MODO OFFLINE / INSTALÁVEL (registra o service worker) =====
+// [v1.1] registra o sw.js para o app funcionar sem internet
 if ("serviceWorker" in navigator) {
   navigator.serviceWorker.register("sw.js").catch(() => {});
 }

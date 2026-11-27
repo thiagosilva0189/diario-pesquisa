@@ -1,6 +1,11 @@
 // Service worker: deixa o app funcionar offline.
 // Estratégia "rede primeiro": com internet, sempre busca a versão mais nova dos
 // arquivos (e guarda uma cópia); sem internet, usa a cópia guardada.
+//
+// [v1.1] arquivo criado quando o app ficou independente (instalável e offline).
+// O nome do CACHE ganha +1 a cada atualização entregue, para o celular trocar a
+// cópia antiga pela nova: diario-v12 corresponde à versão 2.2 do app.
+// (Histórico completo de versões: topo do app.js.)
 const CACHE = "diario-v12";   // v12: versão 2.2 (Google Agenda: trazer e enviar)
 const ARQUIVOS = [
   "./", "index.html", "style.css", "app.js",
