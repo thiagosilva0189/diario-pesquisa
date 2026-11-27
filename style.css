@@ -12,6 +12,7 @@
            e, quando for o caso, "visual v2.0" (o desenho atual veio na 2.0).
    [v2.1]  Tema escuro escolhido no menu e partes novas (fim do arquivo).
    [v2.2]  Tela Google Agenda (fim do arquivo).
+   [v2.3]  Sincronização, morfologia externa, subitens e ✓ no calendário (fim do arquivo).
    --------------------------------------------------------------------- */
 
 /* ---------- 1. Paleta (modo claro) ---------- */
@@ -460,3 +461,36 @@ h2.rph{font-size:21px;margin:14px 0 4px}
 .kres{margin:12px 0 0!important;font-size:14px;color:var(--acc);font-weight:600}
 .gbtn{flex:none;border:1px solid var(--line2);background:var(--card);color:var(--acc);font-size:12px;font-weight:700;border-radius:99px;padding:5px 10px;white-space:nowrap;line-height:1.2}
 .gbtn:active{background:var(--accb)}
+
+/* =====================================================================
+   [v2.3] Conta Google, morfologia externa, subitens e ✓ no calendário
+   ===================================================================== */
+/* nuvem da sincronização na barra de cima (bolinha: verde em dia, âmbar tocar, vermelha problema) */
+#sy{flex:none;position:relative;width:44px;height:44px;display:grid;place-items:center;border:0;border-radius:50%;background:none;color:inherit;padding:0}
+#sy svg{width:24px;height:24px}
+#sy:active{background:rgba(255,255,255,.16)}
+#sy i{position:absolute;right:8px;bottom:10px;width:9px;height:9px;border-radius:50%;background:#7fd6a0;box-shadow:0 0 0 2px var(--top2)}
+#sy.need i{background:#ecc06a}#sy.err i{background:#f08b84}
+#sy.busy svg{animation:sybusy 1.2s ease-in-out infinite}
+@keyframes sybusy{50%{opacity:.35}}
+/* faixa "Toque para sincronizar" */
+#sbar{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;border:0;padding:10px 14px;background:var(--ambb);color:var(--ambt);font:600 13.5px/1.3 var(--sans);border-bottom:1px solid var(--line);cursor:pointer}
+#sbar:active{filter:brightness(.95)}
+/* caixinha dentro do formulário (espécie ou gênero sem nome) */
+.sheet label.ck{display:flex;align-items:flex-start;gap:10px;color:var(--ink);font-size:14.5px;font-weight:500;letter-spacing:0;line-height:1.35}
+.sheet label.ck>*{margin-top:0;font-size:14.5px;font-weight:500}
+.sheet label.ck input{margin-top:1px}
+/* tabela de peças e estruturas com grupos (Terminália ♂ › T8) */
+.pg.pgh{display:block;min-height:0;padding:9px 14px 3px;font:700 11px/1.3 var(--sans);letter-spacing:.08em;text-transform:uppercase;color:var(--ambt);background:var(--card)!important}
+.pg.psub>span:first-child{padding-left:12px}
+.pg.psub>span:first-child::before{content:"↳ ";color:var(--mut)}
+/* calendário: círculo para concluir e ✓ nos dias com algo concluído */
+.agck{flex:none;width:28px;height:28px;border-radius:50%;border:2px solid var(--blue);background:none;padding:0;display:grid;place-items:center;font:800 15px/1 var(--sans);color:#fff;transition:transform .12s}
+.agck:active{transform:scale(.88)}
+.agck.red{border-color:var(--red)}.agck.orange{border-color:var(--orange)}.agck.yellow{border-color:var(--yellow)}.agck.green{border-color:var(--green)}.agck.purple{border-color:var(--purple)}.agck.gray{border-color:var(--gray)}
+.agck.on{background:var(--green);border-color:var(--green)}
+.dot.ok{position:relative;background:none;width:9px;height:9px;margin:0}
+.dot.ok::before{content:"✓";position:absolute;left:0;top:-2px;font:900 10px/1 var(--sans);color:var(--green)}
+/* tela Google: arquivos .ics recolhidos */
+details.kd .card{box-shadow:none}
+details.kd .grp{margin-top:16px}

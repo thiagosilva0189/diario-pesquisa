@@ -4,9 +4,9 @@
 //
 // [v1.1] arquivo criado quando o app ficou independente (instalável e offline).
 // O nome do CACHE ganha +1 a cada atualização entregue, para o celular trocar a
-// cópia antiga pela nova: diario-v12 corresponde à versão 2.2 do app.
+// cópia antiga pela nova: diario-v13 corresponde à versão 2.3 do app.
 // (Histórico completo de versões: topo do app.js.)
-const CACHE = "diario-v12";   // v12: versão 2.2 (Google Agenda: trazer e enviar)
+const CACHE = "diario-v13";   // v13: versão 2.3 (conta Google, morfologia externa)
 const ARQUIVOS = [
   "./", "index.html", "style.css", "app.js",
   "manifest.webmanifest", "icon-192.png", "icon-512.png"
@@ -35,6 +35,8 @@ self.addEventListener("activate", (e) => {
 // Pedidos: tenta a internet; se der certo, atualiza a cópia; se falhar, usa a cópia.
 self.addEventListener("fetch", (e) => {
   if (e.request.method !== "GET") return;
+  // [v2.3] pedidos ao Google (login, Drive, Agenda) vão direto pela internet, sem passar pela cópia
+  if (new URL(e.request.url).origin !== self.location.origin) return;
   e.respondWith(
     fetch(e.request.url, { cache: "no-cache" })
       .then((resp) => {
