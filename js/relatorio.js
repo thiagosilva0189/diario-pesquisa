@@ -1,7 +1,8 @@
 // =====================================================================
 // Diário de Pesquisa — relatorio.js: RELATÓRIO DO PERÍODO
 // O que foi concluído num período (para copiar ou compartilhar), correção das
-// datas de conclusão e "Concluídas sem data".
+// datas de conclusão e "Concluídas sem data". O modo "Relatório de progresso"
+// (números do período e situação atual, para o orientador) fica em progresso.js.
 // Ordem dos arquivos e histórico de versões: js/versao.js
 // =====================================================================
 
@@ -12,9 +13,10 @@ let REPI=[];   // [v2.4] refs dos itens mostrados (o número do item é a posiç
 const rf=(o,k,lab)=>({lab,v:o[k],set:d=>{o[k]=d}});
 const MOLR=[["a","a","Tecido (amostra)","tecido separado"],["e","e","Extração de DNA","DNA extraído"]];   // [4] = texto no relatório
 // [v2.5] checklist da espécie nova e do gênero novo (itens marcados à mão) e empréstimos (C.e)
+// [v2.6] manuscritos (mudanças de situação, C.m) e etapas das pranchas
 const nvRep=L=>L.filter(it=>!it.so).map(it=>[it.k,"",it.l,it.l.replace(/\s*\(.*\)$/,"").replace(/^./,c=>c.toLowerCase())]);   // "Registro no ZooBank (LSID)" → "registro no ZooBank"
 function repData(a,b){
- const inR=v=>isDate(v)&&v>=a&&v<=b,G=[],C={t:0,b:0,p:0,h:0,n:0,e:0};
+ const inR=v=>isDate(v)&&v>=a&&v<=b,G=[],C={t:0,b:0,p:0,h:0,n:0,e:0,m:0};
  const add=(key,lh,lt,d,th,tt,c,q,r)=>{let g=G.find(x=>x.key===key);if(!g)G.push(g={key,lh,lt,it:[]});g.it.push({d,th,tt,r:r||[]});C[c]+=q||1};
  const tk=(key,lh,lt,o)=>{
   o.tasks.forEach(t=>{if(inR(t.dc))add(key,lh,lt,t.dc,"Atividade concluída: <b>"+esc(t.t)+"</b>","Atividade concluída: "+t.t,"t",1,[rf(t,"dc","Atividade: "+t.t)]);
@@ -45,6 +47,10 @@ function repData(a,b){
  S.emp.forEach(e=>{const nm=empNome(e),it=(k,l)=>{if(inR(e[k]))add("emp","Empréstimos","Empréstimos",e[k],l+": <b>"+esc(nm)+"</b>",l+": "+nm,"e",1,[rf(e,k,l+": "+nm)])};
   it("dp","Empréstimo solicitado");it("dr","Empréstimo recebido");it("dv","Empréstimo devolvido");
   e.pr.forEach(p=>{if(inR(p.d))add("emp","Empréstimos","Empréstimos",p.d,"Prorrogação: <b>"+esc(nm)+"</b> (novo prazo "+fmt(p.nd)+")","Prorrogação: "+nm+" (novo prazo "+fmt(p.nd)+")","e",1,[rf(p,"d","Prorrogação: "+nm)])})});
+ // [v2.6] manuscritos: submetido, revisão recebida, aceito e publicado · pranchas: imagens tratadas, montada e legenda revisada
+ const MSR=["","Manuscrito submetido","Revisão recebida","Manuscrito aceito","Manuscrito publicado"];
+ S.ms.forEach(m=>[1,2,3,4].forEach(i=>{const d=m["d"+i];if(inR(d))add("ms","Manuscritos","Manuscritos",d,MSR[i]+": <b>"+esc(m.t)+"</b>",MSR[i]+": "+m.t,"m",1,[rf(m,"d"+i,MSR[i]+": "+m.t)])}));
+ S.pr.forEach(P=>PRS.forEach(([k,l])=>{if(inR(P[k]))add("pr","Pranchas","Pranchas",P[k],l+": <b>"+esc(P.n)+"</b>",l+": "+P.n,"p",1,[rf(P,k,l+": "+P.n)])}));
  G.forEach(g=>g.it.sort((x,y)=>x.d.localeCompare(y.d)));return{G,C};
 }
 // [v2.4] CONCLUÍDAS SEM DATA: atividades, subitens e etapas marcados como feitos sem data guardada
@@ -61,12 +67,14 @@ function undData(){const G=[],add=(lh,lab,r)=>{if(r.length)G.push({lh,lab,r})};
 // [v2.4] janela para informar/corrigir datas de conclusão (uma ou várias de uma vez)
 function datForm(R){const one=R.length===1,F=(one?[]:[{k:"all",l:"Usar a mesma data para todos (opcional)",t:"date"}]).concat(R.map((r,i)=>({k:"d"+i,l:r.lab,t:"date"}))),Vv={};R.forEach((r,i)=>Vv["d"+i]=isDate(r.v)?r.v:"");
  form(one?"Data de conclusão":"Datas de conclusão",F,Vv,v=>{let n=0;R.forEach((r,i)=>{const o=isDate(r.v)?r.v:"",d=v["d"+i]!==o?v["d"+i]:(v.all||"");if(isDate(d)&&d!==o){r.set(d);n++}});done();if(n)toast(pl(n,"data atualizada","datas atualizadas"))})}
-function vRep(){
+// [v2.6] dois modos na mesma tela: o que foi concluído no período e o relatório de progresso (progresso.js)
+const rmSeg=()=>`<div class="qtabs rpm noprint">${[["p","Concluídas no período"],["g","Progresso"]].map(([i,l])=>`<button class="${(V.rm==="g"?"g":"p")===i?"on":""}" data-a="rpm" data-i="${i}">${l}</button>`).join("")}</div>`;
+function vRep(){if(V.rm==="g")return rmSeg()+vProg();
  const r=V.rp,{G,C}=repData(r.a,r.b),P=[["7","7 dias"],["m","Este mês"],["mp","Mês passado"],["x","Escolher"]];REPI=[];const ref=x=>(REPI.push(x),REPI.length-1);
  const ch=(n,a,b,c)=>n?`<span class="chip ${c}">${pl(n,a,b)}</span>`:"",U=undData();
- return`<div class="seg">${P.map(([i,l])=>`<button class="${r.k===i?"on":""}" data-a="rpk" data-i="${i}">${l}</button>`).join("")}</div>`
+ return rmSeg()+`<div class="seg">${P.map(([i,l])=>`<button class="${r.k===i?"on":""}" data-a="rpk" data-i="${i}">${l}</button>`).join("")}</div>`
  +(r.k==="x"?`<div class="rpd"><label>De<input type="date" data-rp="a" value="${r.a}"></label><label>Até<input type="date" data-rp="b" value="${r.b}"></label></div>`:"")
- +`<h2 class="rph">${fmt(r.a)} a ${fmt(r.b)}</h2><div>${ch(C.t,"atividade concluída","atividades concluídas","green")}${ch(C.b,"subitem","subitens","")}${ch(C.p,"etapa concluída","etapas concluídas","blue")}${ch(C.h,"habitus","habitus","purple")}${ch(C.n,"nota","notas","yellow")}${ch(C.e,"registro de empréstimo","registros de empréstimos","orange")}</div>`
+ +`<h2 class="rph">${fmt(r.a)} a ${fmt(r.b)}</h2><div>${ch(C.t,"atividade concluída","atividades concluídas","green")}${ch(C.b,"subitem","subitens","")}${ch(C.p,"etapa concluída","etapas concluídas","blue")}${ch(C.h,"habitus","habitus","purple")}${ch(C.n,"nota","notas","yellow")}${ch(C.e,"registro de empréstimo","registros de empréstimos","orange")}${ch(C.m,"registro de manuscrito","registros de manuscritos","blue")}</div>`
  +(G.map(g=>`<div class="card rpg"><b>${g.lh}</b>${g.it.map(i=>`<div class="rpi" data-a="rpe" data-i="${ref(i.r)}"><small>${fmt(i.d).slice(0,5)}</small><span>${i.th}</span></div>`).join("")}</div>`).join("")||'<div class="empty">Nada registrado neste período.</div>')
  +(G.length?`<p class="note">Toque num item para corrigir a data.</p><div class="tools"><button class="pri" data-a="rpc">Copiar relatório</button>${navigator.share?'<button class="sec" data-a="rps">Compartilhar</button>':""}</div>`:"")
  +(U.length?`<div class="grp">Concluídas sem data (${U.reduce((n,u)=>n+u.r.length,0)})</div><p class="note">Coisas marcadas como feitas antes de o diário guardar datas. Toque para informar quando foram feitas: passam a contar no relatório do período e aparecem no calendário.</p>`

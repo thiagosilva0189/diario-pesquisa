@@ -10,22 +10,23 @@
 const closeMenu=()=>{$("#menu").hidden=true;$("#scrim").hidden=true;syncHist()};
 // ----- abas, deslize e animação -----
 // [v2.0?] troca de aba com animação para o lado certo · lista de telas: r e o [v2.1], k [v2.2]
-const TABS=["g","p","a","c","e","x","r","o","k","m","b","z","s"];   // [v2.4] z = Configurações · [v2.5] e = Empréstimos, x = Matrizes
+const TABS=["g","p","a","c","f","i","w","x","e","t","r","o","k","m","b","z","s"];   // [v2.4] z = Configurações · [v2.5] e = Empréstimos, x = Matrizes
+// [v2.6] f = Fila de bancada, i = Pranchas, w = Manuscritos, t = Linha do tempo
 let dir=0;
 function go(t){dir=Math.sign(TABS.indexOf(t)-TABS.indexOf(V.tab));V.tab=t;V.g=null;V.s=null;V.u=null;V.ret=null;V.hs=[];render();$("#app").scrollTop=0}
 // títulos das telas: Backup b [v1.1] · Modelos m [v1.2] · Contagem c [v1.4] · Agenda a [v1.8] · Sobre s [v1.10] · Relatório r e Organizar o [v2.1] · Google Agenda k [v2.2]
-const TTL={m:"Modelos",b:"Backup",s:"Sobre o app",a:"Agenda",c:"Contagens regressivas",r:"Relatório",o:"Organizar",k:"Google",z:"Configurações",e:"Empréstimos",x:"Matrizes de caracteres"};   // [v2.3] k = conta Google · [v2.5] e, x
+const TTL={m:"Modelos",b:"Backup",s:"Sobre o app",a:"Agenda",c:"Contagens regressivas",r:"Relatório",o:"Organizar",k:"Google",z:"Configurações",e:"Empréstimos",x:"Matrizes de caracteres",f:"Fila de bancada",i:"Pranchas",w:"Manuscritos",t:"Linha do tempo"};   // [v2.3] k = conta Google · [v2.5] e, x · [v2.6] f, i, w, t
 // [v1.0] desenha a tela atual · [v2.0] título na barra, seta de voltar, botão + flutuante e animação de entrada
 function render(){
  document.querySelectorAll("#tabs button").forEach(b=>b.classList.toggle("on",b.dataset.i===V.tab));
  const a=$("#app");
- a.innerHTML=V.tab==="g"?(V.u?vSup():V.g?vGen():vGroups()):V.tab==="p"?vDash():V.tab==="a"?vAg():V.tab==="c"?vCd():V.tab==="m"?vTpl():V.tab==="s"?vAbout():V.tab==="r"?vRep():V.tab==="o"?vOrg():V.tab==="k"?vK():V.tab==="z"?vCfg():V.tab==="e"?vEmp():V.tab==="x"?vMx():vBackup();   // [v2.5] Empréstimos e Matrizes
+ a.innerHTML=V.tab==="g"?(V.u?vSup():V.g?vGen():vGroups()):V.tab==="p"?vDash():V.tab==="a"?vAg():V.tab==="c"?vCd():V.tab==="m"?vTpl():V.tab==="s"?vAbout():V.tab==="r"?vRep():V.tab==="o"?vOrg():V.tab==="k"?vK():V.tab==="z"?vCfg():V.tab==="e"?vEmp():V.tab==="x"?vMx():V.tab==="f"?vFila():V.tab==="i"?vPr():V.tab==="w"?vMs():V.tab==="t"?vTl():vBackup();   // [v2.5] Empréstimos e Matrizes · [v2.6] Fila, Pranchas, Manuscritos, Linha do tempo
  if(V.tab==="g"&&!V.g&&!V.u)list();
  const sub=V.tab==="g"&&(V.g||V.u);                       // dentro de um gênero ou espécie?
- $("#bk").hidden=!(sub||"mbsrokzex".includes(V.tab));
+ $("#bk").hidden=!(sub||"mbsrokzexfiwt".includes(V.tab));
  $("#ttl").textContent=TTL[V.tab]||(V.u?(V.u==="*"?"Atividades gerais":fam(V.u.split("|")[0]).n):!sub?"Diário de Pesquisa":fam(V.f).n);
  const su=V.tab==="g"&&V.u&&V.u.includes("|")?supOwn():null;   // [v2.4] numa tela de subgrupo, o + cria gênero nele
- const fa=V.tab==="a"?"addAg":V.tab==="c"?"addCd":V.tab==="e"?"addEmp":V.tab==="x"?"addMx":V.tab==="g"?(V.u?(su&&su.r?"addGen":""):(V.g?"addSp":"addFam")):"";   // ação do botão flutuante +
+ const fa=V.tab==="a"?"addAg":V.tab==="c"?"addCd":V.tab==="e"?"addEmp":V.tab==="x"?"addMx":V.tab==="i"?"addPr":V.tab==="w"?"addMs":V.tab==="t"?"addTl":V.tab==="g"?(V.u?(su&&su.r?"addGen":""):(V.g?"addSp":"addFam")):"";   // ação do botão flutuante +
  $("#fab").hidden=!fa;$("#fab").dataset.a=fa;$("#fab").dataset.i=su&&su.r?V.u:"";
  a.classList.remove("in-l","in-r");
  if(dir){void a.offsetWidth;a.classList.add(dir>0?"in-r":"in-l");dir=0}
@@ -34,7 +35,7 @@ function render(){
 
 // ===== AÇÕES DESTA PARTE (botões com data-a="...") =====
 Object.assign(A,{
- tab(el){const r={tab:V.tab,f:V.f,g:V.g,u:V.u},t=el.dataset.i;closeMenu();go(t);if("mbsrokzex".includes(t)&&r.tab!==t)V.ret=r},   // [v2.1] lembra de onde veio
+ tab(el){const r={tab:V.tab,f:V.f,g:V.g,u:V.u},t=el.dataset.i;closeMenu();go(t);if("mbsrokzexfiwt".includes(t)&&r.tab!==t)V.ret=r},   // [v2.1] lembra de onde veio
  // [v1.0] voltar · [v2.0] seta de voltar na barra · [v2.1] volta para a tela de onde veio (V.ret) · menu ⋮
  back(){V.g=null;V.s=null;render()},
  navback(){if(V.tab!=="g"){const r=V.ret;if(r){go(r.tab);V.f=r.f;V.g=r.g;V.u=r.u;dir=-1;render()}else go("g");return}const p=V.hs.pop();if(p){V.u=p.u;V.f=p.f;V.g=p.g}else{V.u=null;V.g=null}dir=-1;render()},   // [v2.4] volta pelo caminho (gênero › subgrupo › família)

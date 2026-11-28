@@ -36,7 +36,8 @@ const tpChip=v=>v===ME?ME:v==="Completa"||v==="Parcial"?"Dissecção "+v.toLower
 //        grpv = exibição dos subgrupos · hoje/prod = cartões do Painel · xi = antecedência dos ‼ · fer = feriados
 //        reg = etapas concluídas no calendário · rem = aviso do Google Agenda
 // [v2.5] sat = atos nomenclaturais · snv = checklist da espécie nova/gênero novo · slo = material · nvt = cartão Novidades taxonômicas
-const DCFG={sty:1,sdi:1,shb:1,sdp:1,sme:1,smo:1,sta:1,snt:1,sug:1,na:1,grpv:"lista",hoje:1,prod:1,xi:30,fer:1,reg:1,rem:"900",sat:1,snv:1,slo:1,nvt:1};
+// [v2.6] fila = cartão Fila de bancada · rit = Ritmo e previsão (Painel e previsão no gênero/espécie) · tlcd = contagens na linha do tempo
+const DCFG={sty:1,sdi:1,shb:1,sdp:1,sme:1,smo:1,sta:1,snt:1,sug:1,na:1,grpv:"lista",hoje:1,prod:1,xi:30,fer:1,reg:1,rem:"900",sat:1,snv:1,slo:1,nvt:1,fila:1,rit:1,tlcd:1};
 // [v1.2] níveis dos modelos · [v1.3] "Família / geral" e "Todos os níveis"
 const LV = {g:"Só gênero", s:"Só espécie", gs:"Gênero e espécie", f:"Família / geral", gsf:"Todos os níveis"};
 // [v1.5] cores por situação e por prioridade
@@ -177,6 +178,11 @@ function fix(){ // completa dados antigos com os campos novos
   if(s.ex){if(!s.lo.some(l=>l.nt===s.ex))s.lo.push({id:uid(),o:"p",e:"",n:"",sx:"",nt:s.ex});delete s.ex}})}));
  S.emp=S.emp||[];S.emp.forEach(e=>{e.pr=e.pr||[];if(!e.av)e.av=30});   // [v2.5] empréstimos (pr = prorrogações)
  S.mx=S.mx||[];S.mx.forEach(m=>{m.T=m.T||[]});                          // [v2.5] matrizes de caracteres (T = terminais)
+ // [v2.6] matriz morfológica ou molecular (mk = marcadores), pranchas (F = figuras), manuscritos, etapas da linha do tempo
+ //        e o texto/data do relatório de progresso
+ S.mx.forEach(m=>{m.tp=m.tp||"mf";m.mk=m.mk||[];m.T.forEach(t=>{if(t.nt===undefined)t.nt=""})});
+ S.pr=S.pr||[];S.pr.forEach(p=>{p.F=p.F||[]});S.ms=S.ms||[];S.ms.forEach(m=>{m.st=Math.min(4,Math.max(0,+m.st||0))});S.tl=S.tl||[];
+ S.rpt=Object.assign({nt:"",a:""},S.rpt||{});
 }
 fix();
 // [v1.0] tela atual (aba, família, gênero, busca) · [v1.3] u = atividades da família/gerais
@@ -188,6 +194,8 @@ V.oF=null;V.oG=null;V.ret=null;               // [v2.1] tela Organizar: família
 V.kf={from:today(),col:"blue",rm:1};V.kres=null; // [v2.2] opções e resultado da importação do Google Agenda
 V.hs=[];   // [v2.4] caminho percorrido na aba Grupos (família › subgrupo › gênero), para o "voltar"
 V.eo=null;V.mo=null;V.nvk="";   // [v2.5] empréstimo e matriz abertos; tipo de ato escolhido no Painel
+// [v2.6] fila escolhida e gênero da fila; prancha, manuscrito e etapa abertos; modo e período do relatório; previsão completa
+V.fq="";V.fqg="";V.po=null;V.wo=null;V.tlo=null;V.rm="p";V.rg="s";V.rto=0;
 // [v2.0] área que rola (usada pelos gestos de deslizar e pelo arrastar da tela Organizar)
 const pane=$("#app");
 // [v1.0] achar família e gênero · [v1.2] achar espécie · [v2.1] gênero só pelo código (gById)

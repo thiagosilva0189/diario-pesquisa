@@ -17,6 +17,10 @@
            ‼ importantes e Configurações (fim do arquivo).
    [v2.5]  Atos nomenclaturais, checklist, material e empréstimos, matrizes e
            Novidades taxonômicas (fim do arquivo).
+   [v2.6]  Gráficos planos (barras finas, blocos de números, barras por semana,
+           indicador de etapas) dentro do visual do app; fila de bancada, ritmo,
+           pranchas, manuscritos, matriz molecular, relatório de progresso
+           (com versão para PDF), linha do tempo e menu ⋮ com rolagem (fim do arquivo).
    --------------------------------------------------------------------- */
 
 /* ---------- 1. Paleta (modo claro) ---------- */
@@ -654,3 +658,170 @@ button.chip.emp,button.chip.mx{border-color:transparent;font-size:12px;font-weig
 .stats.nvt>button:active{background:var(--card2)}
 .card.nvtl{padding:2px 16px}
 .card.nvtl .hj:first-child{border-top:0}
+
+/* =====================================================================
+   [v2.6] Gráficos planos dentro do visual do app ("mescla"): a moldura
+          continua a mesma (barra verde, papel milimetrado, serifa, âmbar);
+          os gráficos novos são lisos e finos. Fila de bancada, ritmo e
+          previsão, pranchas, manuscritos, matriz molecular, relatório de
+          progresso (e PDF), linha do tempo e menu ⋮ com rolagem
+   ===================================================================== */
+/* menu ⋮ mais comprido: rola quando não cabe na tela */
+#menu{overflow-y:auto;max-height:calc(100vh - 74px - env(safe-area-inset-top,0px));max-height:calc(100dvh - 74px - env(safe-area-inset-top,0px));overscroll-behavior:contain}
+/* rótulo pequeno de seção (mais discreto que o .grp) e cartão com respiro */
+.stl{font:700 11px/1.2 var(--sans);letter-spacing:.1em;text-transform:uppercase;color:var(--mut);margin:16px 2px 8px}
+.card .stl,.prd .stl,.mxd .stl,.tld .stl{margin-left:0}
+.card.pad{padding:12px 16px}
+.card.pad>.stl:first-child{margin-top:4px}
+.big{font:600 30px/1.1 var(--serif);color:var(--acc);font-variant-numeric:tabular-nums}
+/* barra fina e lisa (progresso) */
+.mb{height:8px;background:var(--line);border-radius:4px;overflow:hidden;margin:8px 0 4px}
+.mb span{display:block;height:100%;background:var(--acc);border-radius:4px}
+.mxb .mb{margin-top:0}
+.mxb small{font:11.5px/1.3 var(--mono)}
+/* blocos de números (KPI): número grande à esquerda, rótulo embaixo */
+.kp{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px;margin-bottom:8px}
+.kp.kp2{grid-template-columns:repeat(2,1fr)}
+.kp>div{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:10px 12px 9px;box-shadow:var(--sh)}
+.kp b{display:block;font:600 24px/1.1 var(--serif);color:var(--ink);font-variant-numeric:tabular-nums}
+.kp b small{font:12px var(--mono);color:var(--mut);margin-left:1px}
+.kp span{display:block;font-size:12px;line-height:1.3;color:var(--mut);margin-top:3px}
+.kp>div.ok{background:var(--greenb);border-color:transparent}
+.kp>div.ok b{color:var(--green)}
+/* barras por semana / por mês (a última, âmbar = agora) */
+.wk{display:flex;align-items:flex-end;gap:6px;height:96px;padding-top:16px;margin:10px 0 4px;border-bottom:1px solid var(--line2)}
+.wk>div{flex:1;height:100%;display:flex;align-items:flex-end;justify-content:center}
+.wk i{position:relative;display:block;width:100%;max-width:30px;min-height:2px;background:var(--acc);border-radius:3px 3px 0 0}
+.wk i small{position:absolute;bottom:100%;left:50%;transform:translateX(-50%);margin-bottom:2px;font:10.5px var(--mono);color:var(--mut);white-space:nowrap}
+.wk .cur i{background:var(--amb)}
+.wk .cur i small{color:var(--ambt);font-weight:700}
+.wkx{display:flex;justify-content:space-between;font:11px var(--mono);color:var(--mut)}
+.wkm{display:flex;gap:6px}
+.wkm span{flex:1;text-align:center;font:10.5px var(--mono);color:var(--mut)}
+/* linhas nome | barra | valor */
+.gb2{display:grid;grid-template-columns:minmax(80px,34%) 1fr 44px;align-items:center;gap:10px;padding:7px 0;border-top:1px dashed var(--line)}
+.gb2:first-child,.stl+.gb2{border-top:0}
+.gb2 b{font:600 14px/1.25 var(--serif);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.gb2 small{font:12px var(--mono);text-align:right;color:var(--mut)}
+.gb2 .mb{margin:0}
+.gb2.stk{grid-template-columns:1fr 44px;row-gap:5px}
+.gb2.stk b{grid-column:1/-1;white-space:normal}
+.gb2[data-a]{cursor:pointer}
+.gb2[data-a]:active{background:var(--card2)}
+/* abas em pílula com contador (filas, modos do relatório) */
+.qtabs{display:flex;flex-wrap:wrap;gap:6px;margin:2px 0 14px;padding:2px}
+.qtabs button{flex:none;display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line2);background:var(--card);border-radius:99px;padding:7px 13px;font-size:13.5px;font-weight:600;color:var(--mut);white-space:nowrap}
+.qtabs button b{font:600 11.5px/1.4 var(--mono);background:var(--card2);color:var(--ink);border-radius:99px;padding:0 7px;min-width:22px;text-align:center}
+.qtabs button.on{background:var(--acc);border-color:var(--acc);color:var(--onacc)}
+.qtabs button.on b{background:var(--onacc);color:var(--acc)}
+.qtabs button:active{filter:brightness(.95)}
+.qtabs.rpm button{flex:1;justify-content:center}
+/* fila de bancada */
+.card.fila{padding:0 14px 4px}
+.fl-h{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:11px 0 7px;cursor:pointer;font:600 16px/1.3 var(--serif)}
+.fl-h small{flex:none;font:12px var(--mono);color:var(--mut)}
+.fl-h .chip{font-family:var(--sans)}
+.flr{min-height:46px;border-top:1px dashed var(--line)}
+.flr .g1{font-size:14.5px;line-height:1.3}
+.flr small{flex:none;font:11.5px var(--mono);color:var(--mut)}
+/* ritmo e previsão */
+.prv{display:flex;align-items:center;gap:10px;padding:10px 0;border-top:1px dashed var(--line);cursor:pointer}
+.stl+.prv{border-top:0}
+.prv:active{background:var(--card2)}
+.prv .g1 b{display:block;font:600 15px/1.25 var(--serif)}
+.prv .g1 small{display:block;font-size:12px;color:var(--mut)}
+.prv .chip{margin:0;flex:none;font-family:var(--mono);font-weight:600}
+.rwarn{color:var(--red);font-size:13px;font-weight:600;line-height:1.35;padding:0 0 9px}
+.fcl{font:12px/1.4 var(--mono);color:var(--acc);margin-top:6px}
+.fcl.late{color:var(--red);font-weight:700}
+/* indicador de etapas (pranchas e manuscritos) */
+.prb{padding:0 14px 12px;margin-top:-6px}
+.stp{display:flex;gap:4px}
+.stp i{flex:1;height:6px;border-radius:3px;background:var(--line)}
+.stp i.ok{background:var(--acc)}
+.stp i.cur{background:var(--amb)}
+.stpl{display:flex;gap:4px;margin-top:4px}
+.stpl span{flex:1;min-width:0;text-align:center;font:10.5px var(--mono);color:var(--mut);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.stpl span.cur{color:var(--ambt);font-weight:700}
+.prm{margin-top:2px}
+.stp.mini{flex:none;width:60px;gap:3px}
+.stp.mini i{height:5px}
+.hj .g1 small.nx{display:block;font:12px/1.3 var(--sans);color:var(--mut);margin-top:1px}
+.prc .fh .g1,.msc .fh .g1{display:flex;flex-direction:column;gap:2px}
+.prc .fh b,.msc .fh b{font:600 17px/1.2 var(--serif)}
+.prc .fh small,.msc .fh small{font-size:12.5px}
+.prd{padding:0 14px 12px;border-top:1px solid var(--line)}
+.prd .hj:first-of-type{border-top:0}
+/* pranchas: figuras como quadrinhos (contorno tracejado = falta; verde = pronta) */
+.prq{display:grid;grid-template-columns:repeat(auto-fill,minmax(84px,1fr));gap:8px;margin:12px 0}
+.prq button{aspect-ratio:1;border:1.5px dashed var(--line2);border-radius:12px;background:var(--card2);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:6px;font:11px/1.25 var(--mono);color:var(--mut);text-align:center;overflow:hidden;overflow-wrap:anywhere}
+.prq b{font:600 19px/1 var(--serif);color:var(--ink)}
+.prq button.ok{border-style:solid;border-color:var(--acc);background:var(--accb);color:var(--acc)}
+.prq button.ok b{color:var(--acc)}
+.prq button[data-a="prf"],.prq button[data-a="prf"] b{color:var(--acc)}
+.prq button:active{transform:scale(.96)}
+.prs .r{min-height:44px;border-bottom:1px dashed var(--line)}
+.prs small{flex:none;font:11.5px var(--mono);color:var(--mut)}
+.prg{justify-content:space-between;gap:10px}
+.prg .grp{display:block;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.prg .grp::after{display:none}
+.prg .lnk{flex:none}
+.leg{font:14px/1.55 var(--serif);background:var(--card2);border:1px solid var(--line);border-left:4px solid var(--amb);border-radius:0 10px 10px 0;padding:10px 12px;margin-bottom:6px}
+/* matriz molecular: marcadores, grade terminal × marcador */
+.mkl{margin-bottom:2px}
+button.chip.mk{background:var(--acc);border-color:var(--acc);color:var(--onacc);font-weight:600}
+button.chip.mk b{font-size:10px;opacity:.75;margin-left:3px}
+button.chip[data-a="mxka"],button.chip[data-a="mxko"]{border-style:dashed;background:transparent;color:var(--acc);font-weight:600}
+button.chip[data-a="mxka"] b{font:600 10.5px/1.5 var(--mono);background:var(--accb);border-radius:99px;padding:0 6px;margin-left:3px}
+.mgw{overflow-x:auto;margin:14px -14px 4px;padding:0 14px 4px}
+.mg{display:grid;gap:3px;align-items:stretch;min-width:max-content}
+.mh{writing-mode:vertical-rl;transform:rotate(180deg);justify-self:center;align-self:end;max-height:96px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font:600 11px var(--mono);color:var(--mut);padding:2px 0}
+.mgn{display:block;border:0;background:none;text-align:left;padding:4px 8px 4px 0;font-size:13.5px;line-height:1.2;min-height:34px;max-width:52vw;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mgn:active{background:var(--card2)}
+.mc{height:34px;border-radius:7px;border:1px solid var(--line2);background:var(--card);font:700 11px/1 var(--mono);color:var(--mut);padding:0;display:grid;place-items:center;transition:transform .1s}
+.mc:active{transform:scale(.9)}
+.mc.ok{background:var(--acc);border-color:var(--acc);color:var(--onacc);font-size:14px}
+.mc.sq{background:var(--accb);border-color:var(--acc2);color:var(--acc)}
+.mc.pc{background:var(--ambb);border-color:var(--amb);color:var(--ambt)}
+.mc.pe{border-style:dashed;border-color:var(--acc2);color:var(--acc);font-size:16px}
+.mc.no{border-style:dashed;background:transparent;color:var(--line2);font-size:15px}
+.mc.na{border-color:transparent;background:repeating-linear-gradient(135deg,var(--line2) 0 3px,var(--line) 3px 7px);color:var(--ink);opacity:.8}
+/* relatório de progresso */
+.rgh{margin:4px 0 2px}
+.rgh h2.rph{margin:6px 0 2px}
+.rgh small{font:12px var(--mono);color:var(--mut)}
+/* linha do tempo: anos no alto, etapas em barras, marcos ◆ e linha vermelha de hoje */
+.card.tl{padding:6px 12px 2px}
+.tlh{display:flex;align-items:flex-end;border-bottom:1px solid var(--line2)}
+.tll{flex:none;width:34%;max-width:160px;padding:6px 8px 6px 0;font:600 13.5px/1.25 var(--serif);overflow:hidden;text-overflow:ellipsis}
+.tly{position:relative;flex:1;display:flex;padding-top:16px;font:11px/1.6 var(--mono);color:var(--mut)}
+.tly span{flex:1;min-width:0;padding-left:4px;border-left:1px solid var(--line)}
+.tly b{position:absolute;top:0;transform:translateX(-50%);font:700 9.5px var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--red)}
+.tlr{display:flex;align-items:center;min-height:42px;border-bottom:1px dashed var(--line);cursor:pointer}
+.tlr:last-child{border-bottom:0}
+.tlr.op{background:var(--card2)}
+.tlr:active{background:var(--card2)}
+.tlt{position:relative;flex:1;align-self:stretch;min-height:42px}
+.tlt>i{position:absolute;top:50%;height:12px;margin-top:-6px;border-radius:3px;background:var(--accb);box-shadow:inset 0 0 0 1px var(--acc2)}
+.tlt>i.cur{background:var(--acc);box-shadow:none}
+.tlt>i.dn{background:var(--line2);box-shadow:none}
+.tlt>i.now{top:0;bottom:0;height:auto;margin:0 0 0 -1px;width:2px;border-radius:0;background:var(--red);box-shadow:none;opacity:.85}
+.tmk{position:absolute;top:50%;width:13px;height:13px;margin:-6.5px 0 0 -6.5px;transform:rotate(45deg);background:var(--amb);border-radius:2px}
+.tmk.dn{background:var(--line2)}
+.tld{padding:8px 4px 4px;border-bottom:1px dashed var(--line)}
+.tld>small{display:block;font:12px var(--mono);color:var(--mut)}
+.tld .hj:first-of-type{border-top:0}
+/* versão para imprimir / salvar em PDF (relatório de progresso): só o conteúdo, cores claras */
+@media print{
+ @page{margin:14mm 12mm}
+ :root:root:root{--bg:#fff;--grid:transparent;--grid2:transparent;--card:#fff;--card2:#f6f5f0;--ink:#151a16;--mut:#5b625c;--line:#dedad0;--line2:#c4bca8;
+  --acc:#24573f;--acc2:#3d7d57;--accb:#dde9de;--onacc:#fff;--amb:#c08a2a;--ambt:#8a5f14;--ambb:#f6e8c9;--red:#b3332e;--redb:#f9e3e0;
+  --green:#1d7544;--greenb:#dcf0e1;--gray:#59645c;--grayb:#e8ebe5;--blue:#2a64a8;--bluebg:#e3ecf7;--sh:none;color-scheme:light}
+ *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+ html,body{height:auto!important;overflow:visible!important;background:#fff!important}
+ #shell{display:block;height:auto}
+ #bar,#tabs,#fab,#menu,#scrim,#sbar,#toast,#modal,.noprint{display:none!important}
+ #app{overflow:visible!important;max-width:none;padding:0;animation:none!important}
+ .card,.kp>div,.gb2{break-inside:avoid}
+ .stl{break-after:avoid}
+}

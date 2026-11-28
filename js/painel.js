@@ -1,7 +1,7 @@
 // =====================================================================
 // Diário de Pesquisa — painel.js: ABA PAINEL
-// Cartões ‼ Extremamente importantes, Hoje e Produção; subabas Em execução,
-// Prazos e Potenciais.
+// Cartões ‼ Extremamente importantes, Hoje, Fila de bancada, Ritmo e previsão
+// e Produção; subabas Em execução, Prazos e Potenciais.
 // Ordem dos arquivos e histórico de versões: js/versao.js
 // =====================================================================
 
@@ -15,6 +15,7 @@ const PT=[["x","Em execução"],["p","Prazos"],["g","Potenciais"]];
 // [v1.8] atividades da Agenda marcadas "Incluir no Painel" · [v1.10] subabas · [v2.1] cartão Hoje e Produção no topo
 // [v2.4] cartão ‼ Extremamente importantes; Hoje e Produção podem ser desligados nas Configurações
 // [v2.5] cartão Novidades taxonômicas (nomenclatura.js), depois da Produção
+// [v2.6] cartões Fila de bancada e Ritmo e previsão (bancada.js), entre Hoje e Produção
 function vDash(){
  const T=allT(),G=[];S.f.forEach(f=>f.g.forEach(g=>G.push({f,g})));
  const rp=e=>e.rp&&e.rp.f,ag=S.ag.filter(e=>e.pn).map(e=>({ag:e,t:{t:e.t,c:"Agenda",d:rp(e)?nextOcc(e):e.d,s:rp(e)?STAT[0]:e.s,p:e.p,xi:e.xi}})),prep=[];   // [v2.4] repetição: próxima data
@@ -26,7 +27,7 @@ function vDash(){
  };
  const pg=x=>`<div class="card gen" style="border-top:0" data-a="og" data-i="${x.f.id}|${x.g.id}"><b>${gl(x.g)}</b> <small>${esc(x.f.n)}</small><div><span class="chip ${pc(x.g.p)}">Prioridade ${esc(x.g.p.toLowerCase())}</span></div></div>`;
  const k=PT.some(a=>a[0]===V.pt)?V.pt:"x",vazio={x:"Nada em execução.",p:"Nenhum prazo definido.",g:"Nenhum gênero potencial."};
- return xiH()+(S.cfg.hoje?hojeH():"")+(S.cfg.prod?prodH():"")+(S.cfg.nvt?nvtH():"")+`<div class="grp">Gêneros e atividades</div><div>${GST.map(s=>`<span class="chip ${gc(s)}">${s}: ${G.filter(x=>x.g.st===s).length}</span>`).join("")}</div><div class="seg">${PT.map(([i,l])=>`<button class="${i===k?"on":""}" data-a="ptab" data-i="${i}">${l} (${L[i].length})</button>`).join("")}</div>`
+ return xiH()+(S.cfg.hoje?hojeH():"")+(S.cfg.fila?filaH():"")+(S.cfg.rit?ritH():"")+(S.cfg.prod?prodH():"")+(S.cfg.nvt?nvtH():"")+`<div class="grp">Gêneros e atividades</div><div>${GST.map(s=>`<span class="chip ${gc(s)}">${s}: ${G.filter(x=>x.g.st===s).length}</span>`).join("")}</div><div class="seg">${PT.map(([i,l])=>`<button class="${i===k?"on":""}" data-a="ptab" data-i="${i}">${l} (${L[i].length})</button>`).join("")}</div>`
  +(L[k].map(k==="g"?pg:item).join("")||`<div class="empty">${vazio[k]}</div>`);
 }
 // [v2.1] cartão "Hoje" no topo do Painel: escala, feriado, atrasados e próximos 7 dias
@@ -44,11 +45,13 @@ function hojeH(){
 }
 // [v2.4] cartão "‼ Extremamente importantes" no topo do Painel: cada item aparece com a antecedência escolhida nele
 // [v2.5] inclui os prazos de devolução dos empréstimos (com a antecedência do aviso de cada um)
+// [v2.6] e os prazos dos manuscritos ainda não submetidos (30 dias antes)
 let XIL=[];
 function xiH(){const td=today(),L=[];
  allT().forEach(x=>{if(x.t.xi&&x.t.s!==STAT[2])L.push({t:x.t.t,d:x.t.d||"",av:x.t.av,x})});
  S.ag.forEach(e=>{if(!e.xi)return;if(e.rp&&e.rp.f){const d=nextOcc(e);if(d)L.push({t:e.t,d,av:e.av,e,oc:d})}else if(e.s!==STAT[2])L.push({t:e.t,d:e.d||"",av:e.av,e})});
  S.emp.forEach(e=>{if(e.st!==EST[2]&&e.dd)L.push({t:"Devolver empréstimo — "+empNome(e),d:e.dd,av:e.av,emp:e})});
+ S.ms.forEach(m=>{if(m.st<1&&m.pz)L.push({t:"Prazo do manuscrito — "+m.t,d:m.pz,av:30,ms:m})});   // [v2.6]
  XIL=L.filter(i=>!i.d||D8(i.d)-D8(td)<=(+i.av||S.cfg.xi)).sort((a,b)=>(a.d||"9999").localeCompare(b.d||"9999"));
  return XIL.length?`<div class="card xic"><div class="xic-h">‼ Extremamente importantes</div>${XIL.map((i,n)=>`<div class="hj${i.d&&i.d<td?" late":""}" data-a="xii" data-i="${n}"><span class="g1">${esc(i.t)}</span><small>${i.d?rel(i.d)+" · "+fmt(i.d):"sem data"}</small></div>`).join("")}</div>`:""}
 // [v2.1] números de produção (peças, habitus, espécies prontas e atividades) · [v2.4] sem as etapas "não será realizada"; marcadores
@@ -71,5 +74,5 @@ Object.assign(A,{
  // [v2.1] abrir um item do cartão Hoje
  hji(el){openIt(HJL[+el.dataset.i])},
  // [v2.4] abrir um item do cartão ‼ Extremamente importantes
- xii(el){const i=XIL[+el.dataset.i];if(!i)return;if(i.emp)return openEmp(i.emp.id);if(i.x)editTask(i.x.o||i.x.s||i.x.g,i.x.t);else eagO(i.e,i.oc||"")},
+ xii(el){const i=XIL[+el.dataset.i];if(!i)return;if(i.emp)return openEmp(i.emp.id);if(i.ms)return openMs(i.ms.id);if(i.x)editTask(i.x.o||i.x.s||i.x.g,i.x.t);else eagO(i.e,i.oc||"")},
 });

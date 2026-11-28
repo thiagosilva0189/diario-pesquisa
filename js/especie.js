@@ -47,7 +47,7 @@ const naLeg=()=>S.cfg.na?" · 2º toque: não será realizada":"";
 function vSp(s){
  const isME=s.tp===ME,sug=S.cfg.sug,hp=s.parts.map(p=>p.n),hh=s.hab.map(x=>x.n),hm=s.me.map(x=>x.n),hk=s.mol.ms.map(m=>m.m);
  const fp=S.tpl.parts.filter(n=>!hp.includes(n)),fh=S.tpl.hab.filter(n=>!hh.includes(n)),fm=S.tpl.me.filter(n=>!hm.includes(n)),fk=S.tpl.mk.filter(n=>!hk.includes(n));
- let h=`<div>${spSt(s)}${atChips(s)}${loChips(s,1)}<span class="chip blue">${esc(tpChip(s.tp))}</span>${s.d?`<span class="chip ${s.d<today()?"red":"blue"}">📅 ${isME?"Prazo do estudo":"Prazo da preparação"}: ${fmt(s.d)}</span>`:""}${mxChips(s)}</div>${s.nt?`<p class="note">${esc(s.nt)}</p>`:""}${prog(s)}<div class="tools" style="margin-top:10px"><button class="sec" data-a="editSp">Editar / excluir espécie</button></div>`;
+ let h=`<div>${spSt(s)}${atChips(s)}${loChips(s,1)}<span class="chip blue">${esc(tpChip(s.tp))}</span>${s.d?`<span class="chip ${s.d<today()?"red":"blue"}">📅 ${isME?"Prazo do estudo":"Prazo da preparação"}: ${fmt(s.d)}</span>`:""}${mxChips(s)}</div>${s.nt?`<p class="note">${esc(s.nt)}</p>`:""}${prog(s)}${fcLineS(s)}<div class="tools" style="margin-top:10px"><button class="sec" data-a="editSp">Editar / excluir espécie</button></div>`;
  h+=accH(s,"at","Atos nomenclaturais",atSum(s),()=>atH(s));
  if(atHas(s,"spn"))h+=accH(s,"nv","Checklist da espécie nova",nvSum(s),()=>nvH(s));
  h+=accH(s,"ty","Material-tipo",tySum(s),()=>tyH(s));

@@ -122,7 +122,7 @@ function icsExport(){
  const L=agItems().filter(i=>!i.dn&&i.d>=td&&!i.oc&&!(i.k==="a"&&i.x.gk));
  // [v2.4] repetição: um evento só, com a regra (RRULE), como no Google
  S.ag.forEach(e=>{if(!e.gk&&e.rp&&e.rp.f&&e.d&&(!e.rp.u||e.rp.u>=td))L.push({d:e.d,h:e.h,t:e.t,k:"a",x:e,sub:"Agenda · repete "+rptL(e.rp),rr:1})});
- const ev=L.map(i=>{const id=i.k==="t"?i.x.t.id:i.k==="p"?"prep-"+i.x.s.id:i.k==="e"?"emp-"+i.x.id:i.x.id;let dt;   // [v2.5] empréstimos
+ const ev=L.map(i=>{const id=i.k==="t"?i.x.t.id:i.k==="p"?"prep-"+i.x.s.id:i.k==="e"?"emp-"+i.x.id:i.k==="m"?"ms-"+i.x.id:i.x.id;let dt;   // [v2.5] empréstimos · [v2.6] manuscritos
   if(i.h){const a=new Date(i.d+"T"+i.h+":00");dt=["DTSTART:"+z(a),"DTEND:"+z(new Date(a.getTime()+36e5))]}else dt=["DTSTART;VALUE=DATE:"+i.d.replace(/-/g,""),"DTEND;VALUE=DATE:"+addD(i.d,1).replace(/-/g,"")];
   if(i.rr)dt.push(...rrLines(i.x,1));
   return["BEGIN:VEVENT","UID:diario-"+id+"@diario-pesquisa","DTSTAMP:"+now,...dt,"SUMMARY:"+icsEsc(gTit(i)),"DESCRIPTION:"+icsEsc(gDet(i)),"END:VEVENT"].map(icsFold).join("\r\n")});
@@ -247,7 +247,7 @@ function gWant(){
   return{useDefault:false,overrides:[...new Set(o.map(m=>Math.min(40320,Math.max(0,m))))].sort((a,b)=>a-b).slice(0,5).map(m=>({method:"popup",minutes:m}))}};   // o Google aceita até 4 semanas antes
  const when=(d,h)=>{if(h){const a=new Date(d+"T"+h+":00");return[{dateTime:isoL(a),timeZone:tz},{dateTime:isoL(new Date(a.getTime()+36e5)),timeZone:tz},+h.slice(0,2)*60+ +h.slice(3,5)]}return[{date:d},{date:addD(d,1)},0]};
  agItems().forEach(i=>{if(i.k==="r"||(i.k==="a"&&(i.x.gk||(i.x.rp&&i.x.rp.f))))return;
-  const key=i.k==="t"?"t"+i.x.t.id:i.k==="p"?"p"+i.x.s.id:i.k==="c"?"c"+i.x.id:i.k==="e"?"e"+i.x.id:"a"+i.x.id,[st,en,hm]=when(i.d,i.h);   // [v2.5] e = empréstimo
+  const key=i.k==="t"?"t"+i.x.t.id:i.k==="p"?"p"+i.x.s.id:i.k==="c"?"c"+i.x.id:i.k==="e"?"e"+i.x.id:i.k==="m"?"m"+i.x.id:"a"+i.x.id,[st,en,hm]=when(i.d,i.h);   // [v2.5] e = empréstimo · [v2.6] m = manuscrito
   W.set("dpq0"+hex(key),{summary:(i.dn?"✓ ":"")+gTit(i),description:gDet(i),start:st,end:en,colorId:GCC[i.dn?"gray":i.col]||"9",reminders:rmd(i.dn,i.xi,i.av,hm)})});   // código fixo por item: nunca duplica
  S.ag.forEach(e=>{if(e.gk||!e.rp||!e.rp.f||!e.d)return;const[st,en,hm]=when(e.d,e.h),i={t:e.t,k:"a",x:e,sub:"Agenda · repete "+rptL(e.rp)};   // [v2.4] repetição: um evento com regra (RRULE)
   W.set("dpq0"+hex("a"+e.id),{summary:gTit(i),description:gDet(i),start:st,end:en,colorId:GCC[e.col]||"9",recurrence:rrLines(e),reminders:rmd(0,e.xi,e.av,hm)})});

@@ -35,17 +35,21 @@ function atChips(o){if(!S.cfg.sat)return"";const n={};atList(o).forEach(a=>{n[a.
  return ATO.filter(x=>n[x.c]).map(x=>`<span class="chip at" title="${esc(x.d)}">${esc(x.l)}${n[x.c]>1?" ×"+n[x.c]:""}</span>`).join("")}
 const atSum=o=>{const L=atList(o);return L.length?esc([...new Set(L.map(a=>ATD[a.c].l))].join(", ")):"nenhum"};
 // seção "Atos nomenclaturais" (espécie e gênero): lista com o detalhe de cada ato e botões de 1 clique
+// [v2.6] manuscrito do ato (o lectótipo/neótipo automático usa o manuscrito guardado no Material-tipo)
+const atMsH=(o,a)=>{const m=msById(a.auto?(o.ty&&o.ty.ms):a.ms);return m?`<br><small class="mut">📄 ${m.st===4?"publicado em":"em"} ${esc(m.t)}</small>`:""};
 function atH(o){const lv=lvOf(o),L=atList(o);
  let h=L.length?`<div class="card atl">${L.map(a=>{const d=ATD[a.c];
-  return`<div class="r atr">${a.auto?`<span class="chip at">${esc(d.l)}</span>`:`<button class="chip at" data-a="ate" data-i="${a.id}">${esc(d.l)}</button>`}<span class="g1">${a.x?esc(a.x):`<small>${a.auto?"marcado em Material-tipo (designado neste trabalho)":d.p?"toque no ato para informar: "+esc(d.p.split(" (")[0].toLowerCase()):esc(d.d)}</small>`}</span>${a.auto?"":`<button class="ic" data-a="atd" data-i="${a.id}">✕</button>`}</div>`}).join("")}</div>`
+  return`<div class="r atr">${a.auto?`<span class="chip at">${esc(d.l)}</span>`:`<button class="chip at" data-a="ate" data-i="${a.id}">${esc(d.l)}</button>`}<span class="g1">${a.x?esc(a.x):`<small>${a.auto?"marcado em Material-tipo (designado neste trabalho)":d.p?"toque no ato para informar: "+esc(d.p.split(" (")[0].toLowerCase()):esc(d.d)}</small>`}${atMsH(o,a)}</span>${a.auto?"":`<button class="ic" data-a="atd" data-i="${a.id}">✕</button>`}</div>`}).join("")}</div>`
   :`<p class="note">Nenhum ato nomenclatural marcado.</p>`;
  const av=ATO.filter(x=>x.lv.includes(lv)&&!x.auto&&(x.rep||!L.some(a=>a.c===x.c)));
  if(av.length)h+=`<div>${av.map(x=>chip("ata",x.c,x.l)).join("")}</div>`;
  if(lv==="s")h+=`<p class="note">Lectótipo ou neótipo designado neste trabalho: escolha o tipo primário em Material-tipo e marque “Designado neste trabalho”.</p>`;
  return h}
 // janela do detalhe do ato (nv = ato novo: só entra na lista ao salvar)
-function atForm(o,a,nv){const d=ATD[a.c];
- form(esc(d.l)+" — "+esc(d.d),[{k:"x",l:d.p||"Observação (opcional)"}],{x:a.x},v=>{a.x=v.x;if(nv)o.at.push(a);done()},nv?null:()=>rm("Ato removido",()=>{o.at=o.at.filter(y=>y!==a)}))}
+// [v2.6] escolher o manuscrito em que o ato é publicado (quando já há manuscritos cadastrados)
+function atForm(o,a,nv){const d=ATD[a.c],F=[{k:"x",l:d.p||"Observação (opcional)"}],m0=msById(a.ms);
+ if(S.ms.length)F.push({k:"ms",l:"Manuscrito em que o ato é publicado",t:"sel",o:[NOMS].concat(S.ms.map(m=>m.t))});
+ form(esc(d.l)+" — "+esc(d.d),F,{x:a.x,ms:m0?m0.t:NOMS},v=>{a.x=v.x;if(v.ms!==undefined){const m=S.ms.find(y=>y.t===v.ms);a.ms=m?m.id:""}if(nv)o.at.push(a);done()},nv?null:()=>rm("Ato removido",()=>{o.at=o.at.filter(y=>y!==a)}))}
 
 // ===== CHECKLIST DA ESPÉCIE NOVA E DO GÊNERO NOVO =====
 // [v2.5] k = código · l = item · a = feito sozinho (a partir do Material-tipo ou dos atos) · so = só automático (sem caixinha)
@@ -95,7 +99,9 @@ function nvH(o){const sp=lvOf(o)==="s";
 function nvtH(){const C={},T={},add=(a,x)=>{C[a.c]=(C[a.c]||0)+1;(T[a.c]=T[a.c]||[]).push(Object.assign({a},x))};
  S.f.forEach(f=>f.g.forEach(g=>{atList(g).forEach(a=>add(a,{f,g}));g.spp.forEach(s=>atList(s).forEach(a=>add(a,{f,g,s})))}));
  const K=ATO.filter(x=>C[x.c]);if(!K.length)return"";const k=C[V.nvk]?V.nvk:"";
- return`<div class="grp">Novidades taxonômicas</div><div class="stats nvt">${K.map(x=>`<button class="${x.c===k?"on":""}" data-a="nvk" data-i="${x.c}" title="${esc(x.d)}"><b>${C[x.c]}</b><span>${esc(x.l)}</span></button>`).join("")}</div>`
+ // [v2.6] publicadas (ligadas a manuscrito publicado) e em preparação
+ const AT=atAll(),np=AT.filter(x=>msPub(atMs(x))).length;
+ return`<div class="grp">Novidades taxonômicas</div><div class="kp kp2"><div class="${np?"ok":""}"><b>${np}</b><span>publicadas</span></div><div><b>${AT.length-np}</b><span>em preparação</span></div></div><div class="stats nvt">${K.map(x=>`<button class="${x.c===k?"on":""}" data-a="nvk" data-i="${x.c}" title="${esc(x.d)}"><b>${C[x.c]}</b><span>${esc(x.l)}</span></button>`).join("")}</div>`
  +(k?`<div class="card nvtl">${T[k].map(x=>{const nv=k==="spn"||k==="gnn"?nvCnt(x.s||x.g):null;
   return`<div class="hj" data-a="og" data-i="${x.f.id}|${x.g.id}|${x.s?x.s.id:""}"><span class="g1">${x.s?spH(x.g,x.s,1):gl(x.g)}${x.a.x?` <small>· ${esc(x.a.x)}</small>`:""}</span><small>${nv?"checklist "+nv[0]+"/"+nv[1]:esc(x.f.n)}</small></div>`}).join("")}</div>`:"")}
 

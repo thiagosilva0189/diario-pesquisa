@@ -12,10 +12,15 @@
 //   nomenclatura.js atos nomenclaturais, checklist da espécie nova e do gênero
 //                  novo, cartão Novidades taxonômicas do Painel
 //   emprestimos.js material da espécie (próprio/empréstimo) e tela Empréstimos
-//   matrizes.js    tela Matrizes de caracteres (células codificadas)
+//   matrizes.js    tela Matrizes: morfológicas (células codificadas) e
+//                  moleculares (marcadores ligados aos dados das espécies)
+//   bancada.js     Fila de bancada e Ritmo e previsão (Painel, gênero, espécie)
+//   pranchas.js    tela Pranchas: figuras, etapas, numeração e legendas
+//   manuscritos.js tela Manuscritos: situação, prazo, atos e pranchas
+//   progresso.js   Relatório de progresso (no Relatório) e Linha do tempo
 //   painel.js      aba Painel: ‼, Hoje, Produção e prazos
 //   agenda.js      abas Agenda e Contagem: calendário, repetições, escala, feriados
-//   relatorio.js   Relatório do período
+//   relatorio.js   Relatório do período (concluídas) e troca para o de progresso
 //   google.js      arquivos .ics e conta Google (Drive e Google Agenda)
 //   menu.js        Configurações, Sobre, Backup, Modelos e Organizar
 //   inicio.js      desenha a tela, abas, cliques, gestos, voltar, tema e início
@@ -109,10 +114,23 @@
 //       prorrogações, exemplares). Tela MATRIZES DE CARACTERES (uma por
 //       análise; caracteres codificados por terminal). Painel: Novidades
 //       taxonômicas e % das matrizes. Relatório: checklist e empréstimos.
+// v2.6  (27/11) FILA DE BANCADA (o que falta dissecar, montar, ilustrar,
+//       fotografar, examinar e o habitus, marcando com um toque) e RITMO E
+//       PREVISÃO (etapas por semana e por folga da escala, previsão de término
+//       de cada espécie e gênero, aviso quando o prazo não fecha). PRANCHAS
+//       (figuras ligadas às peças, estruturas e habitus, etapas, numeração por
+//       manuscrito e legenda automática; só o esquema, sem imagens). Tela
+//       MANUSCRITOS (redação › submetido › revisão › aceito › publicado, prazo
+//       na Agenda, atos e pranchas; atos publicados contam no Painel). MATRIZ
+//       MOLECULAR (marcadores da matriz, grade terminal × marcador ligada aos
+//       dados moleculares das espécies, cobertura e tabela de nºs de acesso).
+//       RELATÓRIO DE PROGRESSO (período, situação atual, gráficos, PDF) e
+//       LINHA DO TEMPO do doutorado. Visual: gráficos planos e finos (barras,
+//       blocos de números, indicador de etapas) dentro do visual do app.
 //
 // Obs.: manifest.webmanifest (v1.1, cores atualizadas na v2.0) não aceita
 // comentários, por isso não tem etiquetas.
 // =====================================================================
 
 // [v1.10] número da versão (aparece em "Sobre o app")
-const VERSAO="2.5";   // mude aqui quando atualizar o app
+const VERSAO="2.6";   // mude aqui quando atualizar o app
